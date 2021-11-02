@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:story_view_app/create_story.dart';
 
 import 'package:story_view_app/custom/story_view/controller/story_controller.dart';
 import 'package:story_view_app/custom/story_view/story_image.dart';
@@ -61,7 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: const Color(0xffEEEEEE),
         foregroundColor: Colors.black,
         onPressed: () {
-        },
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateStoryScreen(
+            type: "text",
+          )));
+        }, 
         child: const Icon(
           Icons.edit,
           size: 18.0,
@@ -69,57 +71,70 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: [
-          ListTile(
-            dense: false,
-            leading: Stack(
-              clipBehavior: Clip.none,
+          Container(
+            margin: const EdgeInsets.all(16.0),
+            child: Row(
               children: [
-                CachedNetworkImage(
-                  filterQuality: FilterQuality.medium,
-                  imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
-                  errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
-                  imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
-                    return CircleAvatar(
-                      radius: 20.0,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: imageProvider,
-                    );
-                  },
-                ),
-                Positioned(
-                  top: 20.0,
-                  right: -5.0,
-                  bottom: 0.0,
-                  child: Container(
-                    width: 30.0,
-                    height: 30.0,
-                    decoration: BoxDecoration(
-                      color: Colors.green[700],
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2.0
-                      ),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CachedNetworkImage(
+                      filterQuality: FilterQuality.medium,
+                      imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
+                      errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
+                      imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
+                        return CircleAvatar(
+                          radius: 20.0,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: imageProvider,
+                        );
+                      },
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      size: 15.0,
-                      color: Colors.white,
+                    Positioned(
+                      top: 20.0,
+                      right: -5.0,
+                      bottom: 0.0,
+                      child: Container(
+                        width: 30.0,
+                        height: 30.0,
+                        decoration: BoxDecoration(
+                          color: Colors.green[700],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2.0
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          size: 15.0,
+                          color: Colors.white,
+                        )
+                      ),
                     )
+                  ]
+                ),
+                Container(
+                  margin: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text("Status saya",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0
+                        ),
+                      ),
+                      SizedBox(height: 4.0),
+                      Text("Ketuk untuk menambahkan pembaruan status",
+                        style: TextStyle(
+                          fontSize: 12.0
+                        ),
+                      ),
+                    ]
                   ),
                 )
-              ]
-            ),
-            title: const Text("Status saya",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14.0
-              ),
-            ),
-            subtitle: const Text("Ketuk untuk menambahkan pembaruan status",
-              style: TextStyle(
-                fontSize: 12.0
-              ),
+              ],
             ),
           ),
           Container(
@@ -137,38 +152,54 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
-          ListTile(
-            dense: false,
-            leading: CachedNetworkImage(
-              filterQuality: FilterQuality.medium,
-              imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
-              errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
-              imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
-                return CustomPaint(
-                  foregroundPainter: DashedCirclePainter(
-                    dashes: 6,
-                    gapSize: 4,
-                    color: Colors.green[700]!,
-                    strokeWidth: 2,
+          Container(
+            margin: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                CachedNetworkImage(
+                  filterQuality: FilterQuality.medium,
+                  imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfHKkqIKH2dd_zz-1sM5xqlN5Rxeeg_AjYBA&usqp=CAU",
+                  errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
+                  imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
+                    return CustomPaint(
+                      foregroundPainter: DashedCirclePainter(
+                        dashes: 3,
+                        gapSize: 4,
+                        color: Colors.green[300]!,
+                        strokeWidth: 2
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.all(3.0),
+                        child: CircleAvatar(
+                          radius: 20.0,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: imageProvider,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Container(
+                  margin: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text("Reihan Agam",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.0
+                        ),
+                      ),
+                      SizedBox(height: 4.0),
+                      Text("Kemarin 10:45",
+                        style: TextStyle(
+                          fontSize: 12.0
+                        ),
+                      ),
+                    ]
                   ),
-                  child: CircleAvatar(
-                    radius: 20.0,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: imageProvider,
-                  ),
-                );
-              },
-            ),
-            title: const Text("Reihan Agam",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14.0
-              ),
-            ),
-            subtitle: const Text("Kemarin 10:45",
-              style: TextStyle(
-                fontSize: 12.0
-              ),
+                )
+              ],
             ),
           ),
         ],
