@@ -1,4 +1,4 @@
-package com.example.story_view
+package com.reihanagam.story_view
 
 import io.flutter.embedding.android.FlutterActivity
 

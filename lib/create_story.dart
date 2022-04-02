@@ -66,7 +66,26 @@ class CreateStoryScreen extends StatelessWidget {
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: Text("test"),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 15.0, right: 15.0),
+                    width: 60.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Center(
+                        child: Icon(
+                          Icons.send, 
+                          color: Colors.black
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        shape: CircleBorder(),
+                        elevation: 0.0,
+                        primary: Colors.white, 
+                        onPrimary: Colors.red,
+                      ),
+                    ),
+                  )
                 )
               ],
             );            

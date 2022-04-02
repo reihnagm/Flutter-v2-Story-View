@@ -1,22 +1,43 @@
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:photo_manager/photo_manager.dart';
+
 import 'package:story_view_app/create_story.dart';
+import 'package:story_view_app/views/basewidgets/gallery/custom_gallery.dart';
+import 'package:story_view_app/views/basewidgets/painter/wa_status.dart';
 
-import 'package:story_view_app/custom/story_view/controller/story_controller.dart';
-import 'package:story_view_app/custom/story_view/story_image.dart';
-import 'package:story_view_app/custom/story_view/index.dart';
-import 'package:story_view_app/custom/story_view/story_video.dart';
-import 'package:story_view_app/test.dart';
+List<CameraDescription>? cameras;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    debugPrint(e.code);
+    debugPrint(e.description);
+  }
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override 
+  void initState() {
+    super.initState();
+    if(mounted) {
+      Future.delayed(Duration.zero, () async {
+        await PhotoManager.requestPermission();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +47,31 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: HomeScreen(key: UniqueKey()),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int length = 100;
+class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
    
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.0,
         title: const Text("Story View",
           style: TextStyle(
-            color: Colors.black54
+            color: Colors.black
           ),
         ),
       ),
@@ -70,77 +91,97 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           Container(
             margin: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    CachedNetworkImage(
-                      filterQuality: FilterQuality.medium,
-                      imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
-                      errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
-                      imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
-                        return CircleAvatar(
-                          radius: 20.0,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: imageProvider,
-                        );
-                      },
-                    ),
-                    Positioned(
-                      top: 20.0,
-                      right: -5.0,
-                      bottom: 0.0,
-                      child: Container(
-                        width: 30.0,
-                        height: 30.0,
-                        decoration: BoxDecoration(
-                          color: Colors.green[700],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => TabCamera(key: UniqueKey())),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          CachedNetworkImage(
+                            filterQuality: FilterQuality.medium,
+                            imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
+                            errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
+                            imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
+                              return CircleAvatar(
+                                radius: 20.0,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: imageProvider,
+                              );
+                            },
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          size: 15.0,
-                          color: Colors.white,
-                        )
+                          Positioned(
+                            top: 20.0,
+                            right: -5.0,
+                            bottom: 0.0,
+                            child: Container(
+                              width: 30.0,
+                              height: 30.0,
+                              decoration: BoxDecoration(
+                                color: Colors.green[700],
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2.0
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                size: 15.0,
+                                color: Colors.white,
+                              )
+                            ),
+                          )
+                        ]
                       ),
-                    )
-                  ]
-                ),
-                Container(
-                  margin: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text("Status saya",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0
+                      Container(
+                        margin: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Text("Status saya",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.0
+                              ),
+                            ),
+                            SizedBox(height: 4.0),
+                            Text("Ketuk untuk menambahkan pembaruan status",
+                              style: TextStyle(
+                                fontSize: 12.0
+                              ),
+                            ),
+                          ]
                         ),
-                      ),
-                      SizedBox(height: 4.0),
-                      Text("Ketuk untuk menambahkan pembaruan status",
-                        style: TextStyle(
-                          fontSize: 12.0
-                        ),
-                      ),
-                    ]
+                      )
+                    ],
                   ),
-                )
-              ],
+                ),
+              ),
             ),
           ),
           Container(
-            margin: const EdgeInsets.only(left: 16.0, right: 16.0),
+            margin: const EdgeInsets.only(
+              left: 16.0, 
+              right: 16.0
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text("Pembaruan Terkini",
                   style: TextStyle(
@@ -155,9 +196,9 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             margin: const EdgeInsets.all(16.0),
             child: Row(
+              mainAxisSize: MainAxisSize.max,
               children: [
                 CachedNetworkImage(
-                  filterQuality: FilterQuality.medium,
                   imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfHKkqIKH2dd_zz-1sM5xqlN5Rxeeg_AjYBA&usqp=CAU",
                   errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
                   imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
@@ -183,6 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   margin: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: const [
                       Text("Reihan Agam",
                         style: TextStyle(
@@ -205,91 +247,5 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       )
     );
-  }
-}
-
-
-class CustomRoundedPainter extends CustomPainter {
-  Color buttonBorderColor;
-  Color progressColor;
-  double percentage;
-  double width;
-
-  CustomRoundedPainter({required this.buttonBorderColor,required this.progressColor, required this.percentage, required this.width});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint line = Paint()
-      ..color = buttonBorderColor
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width;
-    Paint complete =  Paint()
-      ..color = progressColor
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width;
-    Offset center = Offset(size.width / 2, size.height / 2);
-    double radius = min(size.width / 2, size.height / 2);
-    canvas.drawCircle(
-      center,
-      radius,
-      line
-    );
-    double arcAngle = 2 * pi * (percentage / 100);
-    canvas.drawArc(
-      Rect.fromCircle(
-        center: center, 
-        radius: radius
-      ),
-      -pi / 2,
-      arcAngle,
-      false,
-      complete
-    );
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
-}
-
-class DashedCirclePainter extends CustomPainter {
-  final int dashes;
-  final Color color;
-  final double gapSize;
-  final double strokeWidth;
-
-  DashedCirclePainter({
-    this.dashes = 1,
-    this.color = Colors.white,
-    this.gapSize = 1,
-    this.strokeWidth = 1
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double gap = pi / 180 * gapSize;
-    final double singleAngle = (pi * 2) / dashes;
-
-    for (int i = 0; i < dashes; i++) {
-      final Paint paint = Paint()
-        ..color = color
-        ..strokeWidth = strokeWidth
-        ..style = PaintingStyle.stroke;
-
-      canvas.drawArc(
-        Rect.fromCircle(
-          center:  Offset(size.width / 2, size.height / 2), 
-          radius:  min(size.width / 2, size.height / 2),
-        ), 
-        gap + singleAngle * i, 
-        singleAngle - gap * 2, false, paint
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(DashedCirclePainter oldDelegate) {
-    return true;
   }
 }
