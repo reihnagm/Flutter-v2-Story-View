@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:path/path.dart' as p;
+
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:camera/camera.dart';
@@ -8,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:story_view_app/main.dart';
+import 'package:story_view_app/views/basewidgets/gallery/ready_for_sent.dart';
 
 class TabCamera extends StatefulWidget {
   final bool needScaffold;
@@ -21,6 +24,7 @@ class TabCamera extends StatefulWidget {
 class _TabCameraState extends State<TabCamera> {
   List<Widget> mediaList = [];
   List<File?> files = [];
+  List<Map<String, dynamic>> addFiles = [];
   List<String?> multipleFiles = [];
   int currentPage = 0;
   CameraController? controller;
@@ -240,10 +244,16 @@ class _TabCameraState extends State<TabCamera> {
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
                             multipleFiles.remove(files[i]!.path);
+                            addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
                           setState(() {
                             multipleFiles.add(files[i]!.path);
+                            addFiles.add({
+                              "id": i,
+                              "file": files[i],
+                              "text": TextEditingController()
+                            });
                           });
                         }
                       }
@@ -253,20 +263,32 @@ class _TabCameraState extends State<TabCamera> {
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
                             multipleFiles.remove(files[i]!.path);
+                            addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
                           setState(() {
                             multipleFiles.add(files[i]!.path);
+                            addFiles.add({
+                              "id": i,
+                              "file": files[i],
+                              "text": TextEditingController()
+                            });
                           });
                         }
                       } else {
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
                             multipleFiles.remove(files[i]!.path);
+                            addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
                           setState(() {
                             multipleFiles.add(files[i]!.path);
+                            addFiles.add({
+                              "id": i,
+                              "file": files[i],
+                              "text": TextEditingController()
+                            });
                           });
                         }
                       }
@@ -425,7 +447,7 @@ class _TabCameraState extends State<TabCamera> {
 
                       },
                       onTap: () {
-                        
+
                       },
                       child: const Text('Hold for Video, or Tap for photo',
                         style: TextStyle(
@@ -449,8 +471,12 @@ class _TabCameraState extends State<TabCamera> {
                   color: Color(0xFF3B833E)
                 ),
                 child: InkWell(
-                  onTap: () {
-
+                  onTap: () { 
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ReadyForSentScreen(
+                        files: addFiles,
+                      )),
+                    );
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
