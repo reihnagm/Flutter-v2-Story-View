@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -23,7 +22,7 @@ class MediaRepo {
       FormData formData = FormData.fromMap({
         "media": await MultipartFile.fromFile(
           file.path, 
-          filename: p.basename(file.path),
+          filename: p.basenameWithoutExtension(file.path) + "-" + DateTime.now().toString() + "." + subtype,
           contentType: MediaType(type, subtype)
         ),
       });
@@ -31,7 +30,7 @@ class MediaRepo {
       Map<String, dynamic> data = res.data;
       return data["data"]["media"];
     } on DioError catch(e) {
-      ShowSnackbar.snackbar(context, "${e.response!.statusCode} : Internal Server Error (${e.response!.data})", "", Colors.redAccent);
+      ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     } 

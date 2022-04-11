@@ -242,15 +242,22 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                     child: IconButton(
                       color: Colors.white,
                       onPressed: () async {
-                        TextEditingController? caption = widget.files.single["text"];
-                        File media =  widget.files.single["file"];
+                        TextEditingController? caption = files.single["text"];
+                        File media = files.single["file"];
                         await context.read<StoryProvider>().createStory(context, 
                           caption: caption!.text, 
                           file: media
                         );
-                        Navigator.of(context).pop();
                       }, 
-                      icon: const Icon(
+                      icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                      ? const SizedBox(
+                          width: 14.0,
+                          height: 14.0,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ) 
+                      : const Icon(
                         Icons.send,
                         size: 20.0,
                       )
@@ -521,7 +528,6 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                             file: media
                           );
                         }
-                        Navigator.of(context).pop();
                       }, 
                       icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
                       ? const SizedBox(

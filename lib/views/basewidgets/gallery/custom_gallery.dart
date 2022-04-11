@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:video_compress/video_compress.dart';
 
 import 'package:photo_manager/photo_manager.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,8 @@ class TabCamera extends StatefulWidget {
 }
 
 class _TabCameraState extends State<TabCamera> {
+  GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
+
   List<Widget> mediaList = [];
   List<File?> files = [];
   List<Map<String, dynamic>> addFiles = [];
@@ -37,8 +39,6 @@ class _TabCameraState extends State<TabCamera> {
   bool cameraNotAvailable = false;
 
   double containerHeight = 110.0;
-
-  GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
 
   Future<void> getNewMedia() async {
     List<AssetPathEntity> albums = await PhotoManager.getAssetPathList();
@@ -150,7 +150,7 @@ class _TabCameraState extends State<TabCamera> {
         "file": f,
         "video": VideoEditorController.file(f,
           maxDuration: const Duration(seconds: 30))..initialize(),
-        "type": p.basename(f.path.split(".")[1]),
+        "type": lookupMimeType(file.path)!.split("/")[1],
         "text": TextEditingController()
       });
       Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -213,7 +213,7 @@ class _TabCameraState extends State<TabCamera> {
                           });
                         } else {
                           File? fileThumbnail;
-                          String ext = p.basename(files[i]!.path.split(".")[1]);
+                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
@@ -228,7 +228,7 @@ class _TabCameraState extends State<TabCamera> {
                               "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": p.basename(files[i]!.path.split(".")[1]),
+                              "type": ext,
                               "text": TextEditingController()
                             });
                           });
@@ -244,7 +244,7 @@ class _TabCameraState extends State<TabCamera> {
                           });
                         } else {
                           File? fileThumbnail;
-                          String ext = p.basename(files[i]!.path.split(".")[1]);
+                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
@@ -259,7 +259,7 @@ class _TabCameraState extends State<TabCamera> {
                               "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": p.basename(files[i]!.path.split(".")[1]),
+                              "type": ext,
                               "text": TextEditingController()
                             });
                           });
@@ -272,7 +272,7 @@ class _TabCameraState extends State<TabCamera> {
                           });
                         } else {
                           File? fileThumbnail;
-                          String ext = p.basename(files[i]!.path.split(".")[1]);
+                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
@@ -287,7 +287,7 @@ class _TabCameraState extends State<TabCamera> {
                               "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": p.basename(files[i]!.path.split(".")[1]),
+                              "type": ext,
                               "text": TextEditingController()
                             });
                           });
@@ -376,7 +376,7 @@ class _TabCameraState extends State<TabCamera> {
               "file": f,
               "thumbnail": "",
               "video": VideoEditorController.file(file)..initialize(),
-              "type": p.basename(f.path).split(".")[1],
+              "type": lookupMimeType(file.path)!.split("/")[1],
               "text": TextEditingController()
             });
             Future.delayed(const Duration(seconds: 1), () {
@@ -436,6 +436,14 @@ class _TabCameraState extends State<TabCamera> {
     }
     getNewMedia();
     initCamera(cameraIndex);
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    if (controller != null) {
+      controller!.dispose();
+    }
   }
 
   @override
@@ -526,8 +534,8 @@ class _TabCameraState extends State<TabCamera> {
             multipleFiles.isEmpty 
             ? const SizedBox() 
             : Positioned(
-                bottom: 15.0,
-                right: 15.0,
+                bottom: 175.0,
+                right: 20.0,
                 child: Container(
                 margin: const EdgeInsets.all(16.0),
                 decoration: const BoxDecoration(
@@ -536,11 +544,13 @@ class _TabCameraState extends State<TabCamera> {
                 ),
                 child: InkWell(
                   onTap: () { 
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ReadyForSentScreen(
-                        files: addFiles,
-                      )),
-                    );
+                    Future.delayed(const  Duration(milliseconds: 1500), () {
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ReadyForSentScreen(
+                          files: addFiles,
+                        )),
+                      );
+                    });
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -558,115 +568,4 @@ class _TabCameraState extends State<TabCamera> {
       )
     );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (controller != null) {
-      controller!.dispose();
-    }
-  }
 }
-
-
-  
-
-// class GridGallery extends StatefulWidget {
-//   final ScrollController? scrollCtr;
-
-//   const GridGallery({
-//     Key? key,
-//     this.scrollCtr,
-//   }) : super(key: key);
-
-//   @override
-//   _GridGalleryState createState() => _GridGalleryState();
-// }
-
-// class _GridGalleryState extends State<GridGallery> {
-//   List<Widget> mediaList = [];
-//   int currentPage = 0;
-//   int? lastPage;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchNewMedia();
-//   }
-
-//   _handleScrollEvent(ScrollNotification scroll) {
-//     if (scroll.metrics.pixels / scroll.metrics.maxScrollExtent > 0.33) {
-//       if (currentPage != lastPage) {
-//         _fetchNewMedia();
-//       }
-//     }
-//   }
-
-//   _fetchNewMedia() async {
-//     lastPage = currentPage;
-//     var result = await PhotoManager.requestPermission();
-//     if (result) {
-//       List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(onlyAll: true);
-//       List<AssetEntity> media = await albums[0].getAssetListPaged(currentPage, 60);
-//       List<Widget> temp = [];
-//       for (var asset in media) {
-//         temp.add(
-//           FutureBuilder(
-//             future: asset.thumbDataWithSize(200, 200), 
-//             builder: (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
-//               if (snapshot.connectionState == ConnectionState.done) {
-//                 return Stack(
-//                   clipBehavior: Clip.none,
-//                   children: [
-//                     Positioned.fill(
-//                       child: Image.memory(
-//                         snapshot.data!,
-//                         fit: BoxFit.cover,
-//                       ),
-//                     ),
-//                     if (asset.type == AssetType.video)
-//                       const Align(
-//                         alignment: Alignment.bottomRight,
-//                         child: Padding(
-//                           padding: EdgeInsets.only(right: 5, bottom: 5),
-//                           child: Icon(
-//                             Icons.videocam,
-//                             color: Colors.white,
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 );
-//               }
-//               return Container();
-//             },
-//           ),
-//         );
-//       }
-//       setState(() {
-//         mediaList.addAll(temp);
-//         currentPage++;
-//       });
-//     } else {
-//       PhotoManager.openSetting();
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return NotificationListener<ScrollNotification>(
-//       onNotification: (ScrollNotification scroll) {
-//         _handleScrollEvent(scroll);
-//         return false;
-//       },
-//       child: GridView.builder(
-//         controller: widget.scrollCtr,
-//         itemCount: mediaList.length,
-//         gridDelegate:  const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-//         itemBuilder: (BuildContext context, int index) {
-//           return mediaList[index];
-//         }
-//       ),
-//     );
-//   }
-// }

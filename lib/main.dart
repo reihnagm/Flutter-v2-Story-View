@@ -5,7 +5,6 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'package:story_view_app/create_story.dart';
-import 'package:story_view_app/custom/story_view/index.dart';
 import 'package:story_view_app/providers.dart';
 import 'package:story_view_app/story_view.dart';
 
@@ -125,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           CachedNetworkImage(
                             filterQuality: FilterQuality.medium,
                             imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
-                            errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
+                            errorWidget: (BuildContext context, String url, dynamic error) => Container(),
                             imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
                               return CircleAvatar(
                                 radius: 20.0,
@@ -163,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text("Status saya",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -220,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       CachedNetworkImage(
-                        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfHKkqIKH2dd_zz-1sM5xqlN5Rxeeg_AjYBA&usqp=CAU",
+                        imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
                         errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
                         imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
                           return CustomPaint(

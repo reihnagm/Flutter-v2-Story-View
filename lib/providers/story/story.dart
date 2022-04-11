@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
+
 import 'package:story_view_app/custom/story_view/controller/story_controller.dart';
 
 import 'package:story_view_app/custom/story_view/index.dart';
@@ -9,20 +10,29 @@ import 'package:story_view_app/data/models/story/story.dart';
 
 import 'package:story_view_app/data/repository/story/media.dart';
 import 'package:story_view_app/data/repository/story/story.dart';
+import 'package:story_view_app/main.dart';
 import 'package:story_view_app/utils/constant.dart';
 
 enum GetStoryStatus { idle, loading, loaded, empty, error }
 enum CreateStoryStatus { idle, loading, loaded, empty, error }
 
 class StoryProvider with ChangeNotifier {
+  late StoryController sc;
+
   final StoryRepo sr;
   final MediaRepo mr;
   StoryProvider({
     required this.sr,
     required this.mr
-  });
+  }) {
+    sc = StoryController();
+  }
 
-  late StoryController sc;
+  @override 
+  void dispose() {
+    sc.dispose();
+    super.dispose();
+  }
 
   List<StoryItem> _storyItem = [];
   List<StoryItem> get storyItem => [..._storyItem];
@@ -30,14 +40,13 @@ class StoryProvider with ChangeNotifier {
   List<StoryData> _storyData = [];
   List<StoryData> get storyData => [..._storyData];
 
-  GetStoryStatus _getStoryStatus = GetStoryStatus.loading;
+  GetStoryStatus _getStoryStatus = GetStoryStatus.idle;
   GetStoryStatus get getStoryStatus => _getStoryStatus;
 
   CreateStoryStatus _createStoryStatus = CreateStoryStatus.idle;
   CreateStoryStatus get createStoryStatus => _createStoryStatus;
 
   void swipeRight() {
-    sc.next();
     Future.delayed(Duration.zero, () => notifyListeners());
   }
 
@@ -52,9 +61,10 @@ class StoryProvider with ChangeNotifier {
   }
 
   Future<void> getStory(BuildContext context) async {
+    setStateGetCreateStoryStatus(GetStoryStatus.loading);
     try { 
-      _storyItem = [];
       _storyData = [];
+      _storyItem = [];
       List<StoryData>? sd = await sr.getStory(context);
       _storyData.addAll(sd!);
       setStateGetCreateStoryStatus(GetStoryStatus.loaded);
@@ -62,22 +72,28 @@ class StoryProvider with ChangeNotifier {
         setStateGetCreateStoryStatus(GetStoryStatus.empty);
       }
       for (StoryData story in storyData) {
-        if(story.type == "image") {
-          _storyItem.add(
-            StoryItem.pageImage(
-              controller: sc,
-              imageFit: BoxFit.scaleDown,
-              url: "${AppConstants.baseUrl}/images/${story.media}",
-              caption: story.caption
-            )
-          );
-        } else {
-          _storyItem.add(
-            StoryItem.pageVideo("${AppConstants.baseUrl}/videos/${story.media}",
-              controller: sc,
-              caption: story.caption
-            )
-          );
+        switch (story.type) {
+          case "image":
+            _storyItem.add(
+              StoryItem.pageImage(
+                controller: sc,
+                imageFit: BoxFit.scaleDown,
+                url: "${AppConstants.baseUrl}/images/${story.media}",
+                caption: story.caption,
+                shown: true
+              )
+            );
+          break;
+          case "video":
+            _storyItem.add(
+              StoryItem.pageVideo("${AppConstants.baseUrl}/videos/${story.media}",
+                controller: sc,
+                caption: story.caption,
+                shown: true
+              )
+            );
+          break;
+          default:
         }
       }
     } catch(e, stacktrace) {
@@ -100,7 +116,9 @@ class StoryProvider with ChangeNotifier {
         media: media!,
         type: fileType
       );
-      Navigator.of(context).pop();
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return HomeScreen(key: UniqueKey());
+      }));
       setStateCreateStoryStatus(CreateStoryStatus.loaded);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());

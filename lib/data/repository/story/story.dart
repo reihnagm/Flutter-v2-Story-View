@@ -33,15 +33,13 @@ class StoryRepo {
       Dio dio = Dio();
       await dio.post("${AppConstants.baseUrl}/story/store", data: {
         "uid": const Uuid().v4(),
-        "caption": caption!.isEmpty 
-        ? "" 
-        : caption,
+        "caption": caption,
         "media": media,
         "type": type,
         "user_id": "93581cb6-42ff-47ba-a34c-b23528633e79"
       });
     } on DioError catch(e) {
-      ShowSnackbar.snackbar(context, "${e.response!.statusCode} : Internal Server Error (${e.response!.data})", "", Colors.redAccent);
+      ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     }
