@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'package:story_view_app/data/repository/story/media.dart';
+import 'package:story_view_app/data/repository/media/media.dart';
 
 enum MediaStatus { idle, loading, loaded, empty, error }
 

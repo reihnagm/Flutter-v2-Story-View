@@ -418,6 +418,7 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                       height: 80.0,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
                         itemCount: files.length,
                         itemBuilder: (context, int i) {
                           return InkWell(
@@ -434,7 +435,9 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                               ),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: currentIndex == i ? Colors.green : Colors.white
+                                  color: currentIndex == i 
+                                  ? Colors.green 
+                                  : Colors.white
                                 )
                               ),
                               child: Stack(
@@ -442,7 +445,9 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                                 children: [
                                   Image.file(File(files[i]["type"] == "mp4" 
                                   ? files[i]["thumbnail"].path 
-                                  : files[i]["file"].path)),
+                                  : files[i]["file"].path),
+                                    fit: BoxFit.fill,
+                                  ),
                                   files[i]["type"] == "mp4" 
                                   ? const Positioned(
                                       bottom: 5.0,

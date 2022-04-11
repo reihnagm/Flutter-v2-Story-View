@@ -1,14 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:story_view_app/custom/story_view/controller/story_controller.dart';
 
 import 'package:story_view_app/custom/story_view/index.dart';
+import 'package:story_view_app/data/models/story/story.dart';
 import 'package:story_view_app/providers/story/story.dart';
+import 'package:story_view_app/utils/constant.dart';
 
 class StoryViewScreen extends StatefulWidget {
-  const StoryViewScreen({ Key? key }) : super(key: key);
+  final List<StoryUserItem> storyUserItem;
+
+  const StoryViewScreen({ 
+    required this.storyUserItem,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _StoryViewScreenState createState() => _StoryViewScreenState();
@@ -17,12 +23,43 @@ class StoryViewScreen extends StatefulWidget {
 class _StoryViewScreenState extends State<StoryViewScreen> {
   GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
 
+  late StoryController sc;
   late StoryProvider sp;
+
+  List<StoryItem> storyItem = [];
 
   @override 
   void initState() {
     super.initState();
+    sc = StoryController();
     Future.delayed(Duration.zero, () {
+      for (var item in widget.storyUserItem) {
+        switch (item.type) {
+          case "image":
+            setState(() {
+              storyItem.add(
+                StoryItem.pageImage(
+                  url: "${AppConstants.baseUrl}/images/${item.media!}", 
+                  controller: sc,
+                  caption: item.caption
+                )
+              );
+            });
+          break;
+          case "video":
+            setState(() {
+              storyItem.add(
+                StoryItem.pageVideo(
+                  "${AppConstants.baseUrl}/videos/${item.media!}", 
+                  controller: sc,
+                  caption: item.caption
+                )
+              );
+            });
+          break;
+          default:
+        }
+      }
       if(mounted) {
         sp.getStory(context);
       }
@@ -31,6 +68,7 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
 
   @override 
   void dispose() {
+    sc.dispose();
     super.dispose();
   }
 
@@ -47,6 +85,7 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
     return Builder(
       builder: (BuildContext context) {
         sp = context.read<StoryProvider>();
+        
         return WillPopScope(
           onWillPop: willPopScope,
           child: Scaffold(
@@ -61,55 +100,21 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
                 },
               ),
             ),
-            body: Consumer<StoryProvider>(
-              builder: (BuildContext context, StoryProvider storyProvider, Widget? child) {
-                if(storyProvider.getStoryStatus == GetStoryStatus.loading) {
-                  return Container();
-                }
-                if(storyProvider.getStoryStatus == GetStoryStatus.empty) {
-                  return const SizedBox(
-                    child: Center(
-                      child: Text("There is no Data",
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.white
-                        ),
-                      )
-                    ),
-                  );
-                }
-                if(storyProvider.getStoryStatus == GetStoryStatus.error) {
-                  return const SizedBox(
-                    child: Center(
-                      child: Text("Oops! There was a problem",
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.white
-                        ),
-                      )
-                    ),
-                  );
-                }
-                if(storyProvider.getStoryStatus == GetStoryStatus.loaded) {
-                  return StoryView(
-                    controller: storyProvider.sc,
-                    storyItems: storyProvider.storyItem,
-                    onStoryShow: (s) {
+            body:  StoryView(
+              controller: sc,
+              storyItems: storyItem,
+              onStoryShow: (s) {
+            
+              },
+              onComplete: () {
+                Navigator.of(context).pop();
+              },
+              onVerticalSwipeComplete: (p) {
                   
-                    },
-                    onComplete: () {
-                      Navigator.of(context).pop();
-                    },
-                    onVerticalSwipeComplete: (p) {
-                       
-                    },
-                    progressPosition: ProgressPosition.top,
-                    repeat: false,
-                    inline: true,
-                  ); 
-                }
-                return Container();
-              }
+              },
+              progressPosition: ProgressPosition.top,
+              repeat: false,
+              inline: true,
             ) 
           ),
         );

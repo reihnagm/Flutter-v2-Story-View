@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:story_view_app/data/repository/story/media.dart';
+import 'package:story_view_app/data/repository/media/media.dart';
 import 'package:story_view_app/data/repository/story/story.dart';
 
 import 'package:story_view_app/providers/media/media.dart';

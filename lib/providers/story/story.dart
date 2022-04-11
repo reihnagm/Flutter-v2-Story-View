@@ -8,10 +8,9 @@ import 'package:story_view_app/custom/story_view/controller/story_controller.dar
 import 'package:story_view_app/custom/story_view/index.dart';
 import 'package:story_view_app/data/models/story/story.dart';
 
-import 'package:story_view_app/data/repository/story/media.dart';
+import 'package:story_view_app/data/repository/media/media.dart';
 import 'package:story_view_app/data/repository/story/story.dart';
 import 'package:story_view_app/main.dart';
-import 'package:story_view_app/utils/constant.dart';
 
 enum GetStoryStatus { idle, loading, loaded, empty, error }
 enum CreateStoryStatus { idle, loading, loaded, empty, error }
@@ -37,8 +36,8 @@ class StoryProvider with ChangeNotifier {
   List<StoryItem> _storyItem = [];
   List<StoryItem> get storyItem => [..._storyItem];
 
-  List<StoryData> _storyData = [];
-  List<StoryData> get storyData => [..._storyData];
+  List<StoryUser> _storyData = [];
+  List<StoryUser> get storyData => [..._storyData];
 
   GetStoryStatus _getStoryStatus = GetStoryStatus.idle;
   GetStoryStatus get getStoryStatus => _getStoryStatus;
@@ -64,38 +63,38 @@ class StoryProvider with ChangeNotifier {
     setStateGetCreateStoryStatus(GetStoryStatus.loading);
     try { 
       _storyData = [];
-      _storyItem = [];
-      List<StoryData>? sd = await sr.getStory(context);
+      // _storyItem = [];
+      List<StoryUser>? sd = await sr.getStory(context);
       _storyData.addAll(sd!);
       setStateGetCreateStoryStatus(GetStoryStatus.loaded);
       if(_storyData.isEmpty) {
         setStateGetCreateStoryStatus(GetStoryStatus.empty);
       }
-      for (StoryData story in storyData) {
-        switch (story.type) {
-          case "image":
-            _storyItem.add(
-              StoryItem.pageImage(
-                controller: sc,
-                imageFit: BoxFit.scaleDown,
-                url: "${AppConstants.baseUrl}/images/${story.media}",
-                caption: story.caption,
-                shown: true
-              )
-            );
-          break;
-          case "video":
-            _storyItem.add(
-              StoryItem.pageVideo("${AppConstants.baseUrl}/videos/${story.media}",
-                controller: sc,
-                caption: story.caption,
-                shown: true
-              )
-            );
-          break;
-          default:
-        }
-      }
+      // for (StoryData story in storyData) {
+      //   switch (story.type) {
+      //     case "image":
+      //       _storyItem.add(
+      //         StoryItem.pageImage(
+      //           controller: sc,
+      //           imageFit: BoxFit.scaleDown,
+      //           url: "${AppConstants.baseUrl}/images/${story.media}",
+      //           caption: story.caption,
+      //           shown: true
+      //         )
+      //       );
+      //     break;
+      //     case "video":
+      //       _storyItem.add(
+      //         StoryItem.pageVideo("${AppConstants.baseUrl}/videos/${story.media}",
+      //           controller: sc,
+      //           caption: story.caption,
+      //           shown: true
+      //         )
+      //       );
+      //     break;
+      //     default:
+      //   }
+      // }
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
       setStateGetCreateStoryStatus(GetStoryStatus.error);

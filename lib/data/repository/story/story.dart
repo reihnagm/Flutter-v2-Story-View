@@ -10,7 +10,7 @@ import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
 
 class StoryRepo {
 
-  Future<List<StoryData>?> getStory(BuildContext context) async {
+  Future<List<StoryUser>?> getStory(BuildContext context) async {
     try {
       Dio dio = Dio();
       Response res = await dio.get("${AppConstants.baseUrl}/story");
@@ -33,10 +33,11 @@ class StoryRepo {
       Dio dio = Dio();
       await dio.post("${AppConstants.baseUrl}/story/store", data: {
         "uid": const Uuid().v4(),
+        "user_story_uid": const Uuid().v4(),
         "caption": caption,
         "media": media,
         "type": type,
-        "user_id": "93581cb6-42ff-47ba-a34c-b23528633e79"
+        "user_id": "3e09dbde-b9d9-4d12-8a90-97990908301d"
       });
     } on DioError catch(e) {
       ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);
@@ -47,8 +48,8 @@ class StoryRepo {
 
 }
 
-List<StoryData> parseStoryData(dynamic data) {
+List<StoryUser> parseStoryData(dynamic data) {
   StoryModel storyModel = StoryModel.fromJson(data);
-  List<StoryData> storyData = storyModel.data!;
+  List<StoryUser> storyData = storyModel.data!;
   return storyData;
 }

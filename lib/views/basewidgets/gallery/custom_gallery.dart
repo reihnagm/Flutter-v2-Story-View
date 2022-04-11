@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
+import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
 
 import 'package:video_compress/video_compress.dart';
 
@@ -205,93 +206,103 @@ class _TabCameraState extends State<TabCamera> {
                 itemBuilder: (BuildContext context, int i) {
                   return InkWell(
                     onLongPress: () async {
-                      if(multipleFiles.isEmpty) {
-                        if(multipleFiles.contains(files[i]!.path)) {
-                          setState(() {
-                            multipleFiles.remove(files[i]!.path);
-                            addFiles.removeWhere((el) => el["id"] == i);
-                          });
-                        } else {
-                          File? fileThumbnail;
-                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
-                          if(ext == "mp4") {
-                            File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                      if(multipleFiles.length < 5) {
+                        if(multipleFiles.isEmpty) {
+                          if(multipleFiles.contains(files[i]!.path)) {
                             setState(() {
-                              fileThumbnail = ft;
+                              multipleFiles.remove(files[i]!.path);
+                              addFiles.removeWhere((el) => el["id"] == i);
+                            });
+                          } else {
+                            File? fileThumbnail;
+                            String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
+                            if(ext == "mp4") {
+                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              setState(() {
+                                fileThumbnail = ft;
+                              });
+                            }
+                            setState(() {
+                              multipleFiles.add(files[i]!.path);
+                              addFiles.add({
+                                "id": i,
+                                "file": files[i],
+                                "thumbnail": fileThumbnail,
+                                "video": VideoEditorController.file(files[i]!,
+                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                "type": ext,
+                                "text": TextEditingController()
+                              });
                             });
                           }
-                          setState(() {
-                            multipleFiles.add(files[i]!.path);
-                            addFiles.add({
-                              "id": i,
-                              "file": files[i],
-                              "thumbnail": fileThumbnail,
-                              "video": VideoEditorController.file(files[i]!,
-                                maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": ext,
-                              "text": TextEditingController()
-                            });
-                          });
                         }
+                      } else {
+                        ShowSnackbar.snackbar(context, "Maximal 5 item", "", Colors.redAccent);
+                        return;
                       }
                     },
                     onTap: () async {
-                      if(multipleFiles.isNotEmpty) {
-                        if(multipleFiles.contains(files[i]!.path)) {
-                          setState(() {
-                            multipleFiles.remove(files[i]!.path);
-                            addFiles.removeWhere((el) => el["id"] == i);
-                          });
-                        } else {
-                          File? fileThumbnail;
-                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
-                          if(ext == "mp4") {
-                            File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                      if(multipleFiles.length < 5) {
+                        if(multipleFiles.isNotEmpty) {
+                          if(multipleFiles.contains(files[i]!.path)) {
                             setState(() {
-                              fileThumbnail = ft;
+                              multipleFiles.remove(files[i]!.path);
+                              addFiles.removeWhere((el) => el["id"] == i);
+                            });
+                          } else {
+                            File? fileThumbnail;
+                            String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
+                            if(ext == "mp4") {
+                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              setState(() {
+                                fileThumbnail = ft;
+                              });
+                            }
+                            setState(() {
+                              multipleFiles.add(files[i]!.path);
+                              addFiles.add({
+                                "id": i,
+                                "file": files[i],
+                                "thumbnail": fileThumbnail,
+                                "video": VideoEditorController.file(files[i]!,
+                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                "type": ext,
+                                "text": TextEditingController()
+                              });
                             });
                           }
-                          setState(() {
-                            multipleFiles.add(files[i]!.path);
-                            addFiles.add({
-                              "id": i,
-                              "file": files[i],
-                              "thumbnail": fileThumbnail,
-                              "video": VideoEditorController.file(files[i]!,
-                                maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": ext,
-                              "text": TextEditingController()
+                        } else {
+                          if(multipleFiles.contains(files[i]!.path)) {
+                            setState(() {
+                              multipleFiles.remove(files[i]!.path);
+                              addFiles.removeWhere((el) => el["id"] == i);
                             });
-                          });
+                          } else {
+                            File? fileThumbnail;
+                            String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
+                            if(ext == "mp4") {
+                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              setState(() {
+                                fileThumbnail = ft;
+                              });
+                            }
+                            setState(() {
+                              multipleFiles.add(files[i]!.path);
+                              addFiles.add({
+                                "id": i,
+                                "file": files[i],
+                                "thumbnail": fileThumbnail,
+                                "video": VideoEditorController.file(files[i]!,
+                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                "type": ext,
+                                "text": TextEditingController()
+                              });
+                            });
+                          }
                         }
                       } else {
-                        if(multipleFiles.contains(files[i]!.path)) {
-                          setState(() {
-                            multipleFiles.remove(files[i]!.path);
-                            addFiles.removeWhere((el) => el["id"] == i);
-                          });
-                        } else {
-                          File? fileThumbnail;
-                          String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
-                          if(ext == "mp4") {
-                            File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
-                            setState(() {
-                              fileThumbnail = ft;
-                            });
-                          }
-                          setState(() {
-                            multipleFiles.add(files[i]!.path);
-                            addFiles.add({
-                              "id": i,
-                              "file": files[i],
-                              "thumbnail": fileThumbnail,
-                              "video": VideoEditorController.file(files[i]!,
-                                maxDuration: const Duration(seconds: 30))..initialize(),
-                              "type": ext,
-                              "text": TextEditingController()
-                            });
-                          });
-                        }
+                        ShowSnackbar.snackbar(context, "Maximal 5 item", "", Colors.redAccent);
+                        return;
                       }
                     },
                     child: Stack(
@@ -544,13 +555,11 @@ class _TabCameraState extends State<TabCamera> {
                 ),
                 child: InkWell(
                   onTap: () { 
-                    Future.delayed(const  Duration(milliseconds: 1500), () {
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ReadyForSentScreen(
-                          files: addFiles,
-                        )),
-                      );
-                    });
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ReadyForSentScreen(
+                        files: addFiles,
+                      )),
+                    );
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
