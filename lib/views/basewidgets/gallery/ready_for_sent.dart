@@ -2,12 +2,16 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 
-import 'package:helpers/helpers.dart' show OpacityTransition;
-
 import 'package:video_editor/video_editor.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:helpers/helpers.dart' show OpacityTransition;
+import 'package:provider/provider.dart';
+
+import 'package:story_view_app/providers/story/story.dart';
+
 
 class ReadyForSentScreen extends StatefulWidget {
   final List<Map<String, dynamic>> files;
@@ -174,7 +178,6 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                           ),
                         ),
                       ),
-
                     ]
                   )
                 ],
@@ -238,8 +241,14 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                     ),
                     child: IconButton(
                       color: Colors.white,
-                      onPressed: () {
-                      
+                      onPressed: () async {
+                        TextEditingController? caption = widget.files.single["text"];
+                        File media =  widget.files.single["file"];
+                        await context.read<StoryProvider>().createStory(context, 
+                          caption: caption!.text, 
+                          file: media
+                        );
+                        Navigator.of(context).pop();
                       }, 
                       icon: const Icon(
                         Icons.send,
@@ -385,7 +394,9 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                       )
                     : Container()
                     : Image.file(
-                      File(files[i]["file"].path),
+                      File(files[i]["type"] == "mp4" 
+                      ? files[i]["thumbnail"].path 
+                      : files[i]["file"].path),
                       fit: BoxFit.fitHeight,
                     );
                   },
@@ -422,9 +433,9 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  Image.file(
-                                    File(files[i]["file"].path),
-                                  ),
+                                  Image.file(File(files[i]["type"] == "mp4" 
+                                  ? files[i]["thumbnail"].path 
+                                  : files[i]["file"].path)),
                                   files[i]["type"] == "mp4" 
                                   ? const Positioned(
                                       bottom: 5.0,
@@ -437,7 +448,6 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                                   : Container()
                                 ],
                               ) 
-                              
                             ),
                           );
                         },
@@ -502,10 +512,26 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                     ),
                     child: IconButton(
                       color: Colors.white,
-                      onPressed: () {
-                      
+                      onPressed: () async {
+                        for (var file in files) {
+                          TextEditingController caption = file["text"];
+                          File media = file["file"];
+                          await context.read<StoryProvider>().createStory(context, 
+                            caption: caption.text, 
+                            file: media
+                          );
+                        }
+                        Navigator.of(context).pop();
                       }, 
-                      icon: const Icon(
+                      icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                      ? const SizedBox(
+                          width: 14.0,
+                          height: 14.0,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ) 
+                      : const Icon(
                         Icons.send,
                         size: 20.0,
                       )

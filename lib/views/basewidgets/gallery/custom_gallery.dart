@@ -205,7 +205,6 @@ class _TabCameraState extends State<TabCamera> {
                 itemBuilder: (BuildContext context, int i) {
                   return InkWell(
                     onLongPress: () async {
-                      addFiles = [];
                       if(multipleFiles.isEmpty) {
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
@@ -213,19 +212,20 @@ class _TabCameraState extends State<TabCamera> {
                             addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
-                          File? f = files[i];
+                          File? fileThumbnail;
                           String ext = p.basename(files[i]!.path.split(".")[1]);
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
-                              f = ft;
+                              fileThumbnail = ft;
                             });
                           }
                           setState(() {
                             multipleFiles.add(files[i]!.path);
                             addFiles.add({
                               "id": i,
-                              "file": f,
+                              "file": files[i],
+                              "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
                               "type": p.basename(files[i]!.path.split(".")[1]),
@@ -237,26 +237,26 @@ class _TabCameraState extends State<TabCamera> {
                     },
                     onTap: () async {
                       if(multipleFiles.isNotEmpty) {
-                        addFiles = [];
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
                             multipleFiles.remove(files[i]!.path);
                             addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
-                          File? f = files[i];
+                          File? fileThumbnail;
                           String ext = p.basename(files[i]!.path.split(".")[1]);
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
-                              f = ft;
+                              fileThumbnail = ft;
                             });
                           }
                           setState(() {
                             multipleFiles.add(files[i]!.path);
                             addFiles.add({
                               "id": i,
-                              "file": f,
+                              "file": files[i],
+                              "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
                               "type": p.basename(files[i]!.path.split(".")[1]),
@@ -265,26 +265,26 @@ class _TabCameraState extends State<TabCamera> {
                           });
                         }
                       } else {
-                        addFiles = [];
                         if(multipleFiles.contains(files[i]!.path)) {
                           setState(() {
                             multipleFiles.remove(files[i]!.path);
                             addFiles.removeWhere((el) => el["id"] == i);
                           });
                         } else {
-                          File? f = files[i];
+                          File? fileThumbnail;
                           String ext = p.basename(files[i]!.path.split(".")[1]);
                           if(ext == "mp4") {
                             File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
                             setState(() {
-                              f = ft;
+                              fileThumbnail = ft;
                             });
                           }
                           setState(() {
                             multipleFiles.add(files[i]!.path);
                             addFiles.add({
                               "id": i,
-                              "file": f,
+                              "file": files[i],
+                              "thumbnail": fileThumbnail,
                               "video": VideoEditorController.file(files[i]!,
                                 maxDuration: const Duration(seconds: 30))..initialize(),
                               "type": p.basename(files[i]!.path.split(".")[1]),
@@ -374,6 +374,7 @@ class _TabCameraState extends State<TabCamera> {
             addFiles.add({
               "id": 0,
               "file": f,
+              "thumbnail": "",
               "video": VideoEditorController.file(file)..initialize(),
               "type": p.basename(f.path).split(".")[1],
               "text": TextEditingController()
@@ -465,7 +466,8 @@ class _TabCameraState extends State<TabCamera> {
                   File ft = await VideoCompress.getFileThumbnail(f.path!);
                   addFiles.add({
                     "id": i,
-                    "file": ft,
+                    "file": file,
+                    "thumbnail": ft,
                     "video": VideoEditorController.file(file,
                       maxDuration: const Duration(seconds: 30))..initialize(),
                     "type": f.extension,
@@ -475,6 +477,7 @@ class _TabCameraState extends State<TabCamera> {
                   addFiles.add({
                     "id": i,
                     "file": file,
+                    "thumbnail": "",
                     "video": VideoEditorController.file(file,
                       maxDuration: const Duration(seconds: 30))..initialize(),
                     "type": f.extension,
@@ -491,7 +494,7 @@ class _TabCameraState extends State<TabCamera> {
           }
         },
         child: Stack(
-        clipBehavior: Clip.none,
+          clipBehavior: Clip.none,
           children: [
             controller!.value.isInitialized
             ? Positioned.fill(
@@ -523,9 +526,9 @@ class _TabCameraState extends State<TabCamera> {
             multipleFiles.isEmpty 
             ? const SizedBox() 
             : Positioned(
-              top: 8.0,
-              right: 8.0,
-              child: Container(
+                bottom: 15.0,
+                right: 15.0,
+                child: Container(
                 margin: const EdgeInsets.all(16.0),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,

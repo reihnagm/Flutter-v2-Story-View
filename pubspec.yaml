@@ -25,6 +25,9 @@ dependencies:
   flutter_cache_manager: ^3.1.2
   file_picker: ^4.5.1
 
+  # G
+  get_it: ^7.2.0
+
   # H
   helpers: ^1.1.4
 
@@ -32,8 +35,15 @@ dependencies:
   photo_manager: ^1.3.10
   provider: ^6.0.1
 
+  # M
+  mime: ^1.0.1
+
   # S
   sliding_up_panel: ^2.0.0+1
+  shared_preferences: ^2.0.13
+
+  # U
+  uuid: ^3.0.6
 
   # V
   video_player: ^2.2.5

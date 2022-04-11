@@ -2,22 +2,33 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
 
 import 'package:story_view_app/create_story.dart';
+import 'package:story_view_app/custom/story_view/index.dart';
+import 'package:story_view_app/providers.dart';
+import 'package:story_view_app/story_view.dart';
+
 import 'package:story_view_app/views/basewidgets/gallery/custom_gallery.dart';
 import 'package:story_view_app/views/basewidgets/painter/wa_status.dart';
+
+import 'package:story_view_app/container.dart' as core;
 
 List<CameraDescription>? cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await core.init();
   try {
     cameras = await availableCameras();
   } on CameraException catch (e) {
     debugPrint(e.code);
     debugPrint(e.description);
   }
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: providers,
+    child: MyApp(key: UniqueKey())
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -195,53 +206,66 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Container(
             margin: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfHKkqIKH2dd_zz-1sM5xqlN5Rxeeg_AjYBA&usqp=CAU",
-                  errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
-                  imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
-                    return CustomPaint(
-                      foregroundPainter: DashedCirclePainter(
-                        dashes: 3,
-                        gapSize: 4,
-                        color: Colors.green[300]!,
-                        strokeWidth: 2
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => StoryViewScreen(key: UniqueKey())),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfHKkqIKH2dd_zz-1sM5xqlN5Rxeeg_AjYBA&usqp=CAU",
+                        errorWidget: (BuildContext context, String url, dynamic error) => const Text("error"),
+                        imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
+                          return CustomPaint(
+                            foregroundPainter: DashedCirclePainter(
+                              dashes: 3,
+                              gapSize: 4,
+                              color: Colors.green[300]!,
+                              strokeWidth: 2
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(3.0),
+                              child: CircleAvatar(
+                                radius: 20.0,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: imageProvider,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      child: Container(
-                        margin: const EdgeInsets.all(3.0),
-                        child: CircleAvatar(
-                          radius: 20.0,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: imageProvider,
+                      Container(
+                        margin: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Text("Reihan Agam",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.0
+                              ),
+                            ),
+                            SizedBox(height: 4.0),
+                            Text("Kemarin 10:45",
+                              style: TextStyle(
+                                fontSize: 12.0
+                              ),
+                            ),
+                          ]
                         ),
-                      ),
-                    );
-                  },
-                ),
-                Container(
-                  margin: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text("Reihan Agam",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0
-                        ),
-                      ),
-                      SizedBox(height: 4.0),
-                      Text("Kemarin 10:45",
-                        style: TextStyle(
-                          fontSize: 12.0
-                        ),
-                      ),
-                    ]
+                      )
+                    ],
                   ),
-                )
-              ],
+                ),
+              ),
             ),
           ),
         ],

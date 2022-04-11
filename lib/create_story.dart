@@ -29,7 +29,7 @@ class CreateStoryScreen extends StatelessWidget {
             return Stack(
               children: [
                 CustomScrollView(
-                  physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   slivers: [
                     SliverList(
                       delegate: SliverChildListDelegate(
