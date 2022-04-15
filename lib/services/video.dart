@@ -18,6 +18,11 @@ class VideoServices {
     }
     return null;
   }
+
+  static Future<String?> getDuration(File file) async {
+    MediaInfo? mediaInfo = await VideoCompress.getMediaInfo(file.path);
+    return (Duration(microseconds: (mediaInfo.duration! * 1000).toInt())).toString();
+  }
   
   static Future<Uint8List> generateByteThumbnail(File file) async {
     Uint8List? thumbnailBytes = await VideoCompress.getByteThumbnail(file.path);

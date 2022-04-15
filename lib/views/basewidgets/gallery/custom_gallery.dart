@@ -147,8 +147,10 @@ class _TabCameraState extends State<TabCamera> {
       addFiles.add({
         "id": 0,
         "file": f,
+        "thumbnail": "",
         "video": VideoEditorController.file(f,
           maxDuration: const Duration(seconds: 30))..initialize(),
+        "duration": "",
         "type": lookupMimeType(file.path)!.split("/")[1],
         "text": TextEditingController()
       });
@@ -213,11 +215,14 @@ class _TabCameraState extends State<TabCamera> {
                             });
                           } else {
                             File? fileThumbnail;
+                            String? duration;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
                               File ft = await VideoServices.generateFileThumbnail(files[i]!);
+                              String? d =  await VideoServices.getDuration(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
+                                duration = d;
                               });
                             }
                             setState(() {
@@ -225,9 +230,10 @@ class _TabCameraState extends State<TabCamera> {
                               addFiles.add({
                                 "id": i,
                                 "file": files[i],
-                                "thumbnail": fileThumbnail,
+                                "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
                                   maxDuration: const Duration(seconds: 30))..initialize(),
+                                "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
                               });
@@ -252,11 +258,14 @@ class _TabCameraState extends State<TabCamera> {
                             });
                           } else {
                             File? fileThumbnail;
+                            String? duration;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
                               File ft = await VideoServices.generateFileThumbnail(files[i]!);
+                              String? d =  await VideoServices.getDuration(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
+                                duration = d;
                               });
                             }
                             setState(() {
@@ -264,9 +273,10 @@ class _TabCameraState extends State<TabCamera> {
                               addFiles.add({
                                 "id": i,
                                 "file": files[i],
-                                "thumbnail": fileThumbnail,
+                                "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
                                   maxDuration: const Duration(seconds: 30))..initialize(),
+                                "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
                               });
@@ -280,11 +290,14 @@ class _TabCameraState extends State<TabCamera> {
                             });
                           } else {
                             File? fileThumbnail;
+                            String? duration;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
                               File ft = await VideoServices.generateFileThumbnail(files[i]!);
+                              String? d = await VideoServices.getDuration(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
+                                duration = d;
                               });
                             }
                             setState(() {
@@ -292,9 +305,10 @@ class _TabCameraState extends State<TabCamera> {
                               addFiles.add({
                                 "id": i,
                                 "file": files[i],
-                                "thumbnail": fileThumbnail,
+                                "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
                                   maxDuration: const Duration(seconds: 30))..initialize(),
+                                "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
                               });
@@ -394,12 +408,15 @@ class _TabCameraState extends State<TabCamera> {
               "file": file,
               "thumbnail": "",
               "video": VideoEditorController.file(file)..initialize(),
+              "duration": await VideoServices.getDuration(file),
               "type": lookupMimeType(file.path)!.split("/")[1],
               "text": TextEditingController()
             });
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ReadyForSentScreen(files: addFiles);
-            }));
+            Future.delayed(const Duration(seconds: 3), () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return ReadyForSentScreen(files: addFiles);
+              }));
+            });
           },
           child: isRecording 
           ? Container(
@@ -498,6 +515,7 @@ class _TabCameraState extends State<TabCamera> {
                         "thumbnail": ft,
                         "video": VideoEditorController.file(file,
                           maxDuration: const Duration(seconds: 30))..initialize(),
+                        "duration": await VideoServices.getDuration(file),
                         "type": f.extension,
                         "text": TextEditingController()
                       });
@@ -508,6 +526,7 @@ class _TabCameraState extends State<TabCamera> {
                         "thumbnail": "",
                         "video": VideoEditorController.file(file,
                           maxDuration: const Duration(seconds: 30))..initialize(),
+                        "duration": "",
                         "type": f.extension,
                         "text": TextEditingController()
                       });

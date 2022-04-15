@@ -244,9 +244,11 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                       onPressed: () async {
                         TextEditingController? caption = files.single["text"];
                         File media = files.single["file"];
+                        String duration = files.single["duration"];
                         await context.read<StoryProvider>().createStory(context, 
                           caption: caption!.text, 
-                          file: media
+                          file: media,
+                          duration: duration
                         );
                       }, 
                       icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
@@ -528,9 +530,11 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                         for (var file in files) {
                           TextEditingController caption = file["text"];
                           File media = file["file"];
+                          String duration = file["duration"];
                           await context.read<StoryProvider>().createStory(context, 
                             caption: caption.text, 
-                            file: media
+                            file: media,
+                            duration: duration
                           );
                         }
                       }, 

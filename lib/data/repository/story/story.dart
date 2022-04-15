@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:story_view_app/data/models/story/story.dart';
 import 'package:story_view_app/data/repository/auth/auth.dart';
+import 'package:story_view_app/providers/auth/auth.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:story_view_app/utils/constant.dart';
 import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
 
 class StoryRepo {
+  final AuthProvider ap;
   final AuthRepo ar;
   StoryRepo({
+    required this.ap,
     required this.ar
   });
 
@@ -32,7 +35,8 @@ class StoryRepo {
   Future<void> createStory(BuildContext context, {
     required String? caption,
     required String media,
-    required String type
+    required String type,
+    required String duration
   }) async {
     try {
       Dio dio = Dio();
@@ -41,8 +45,9 @@ class StoryRepo {
         "user_story_uid": const Uuid().v4(),
         "caption": caption,
         "media": media,
+        "duration": duration,
         "type": type,
-        "user_id": "3e09dbde-b9d9-4d12-8a90-97990908301d"
+        "user_id": ap.getUid
       });
     } on DioError catch(e) {
       ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);

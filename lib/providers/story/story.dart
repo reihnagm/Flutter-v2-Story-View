@@ -78,6 +78,7 @@ class StoryProvider with ChangeNotifier {
   Future<void> createStory(BuildContext context, {
     required String? caption,
     required File file,
+    required String duration
   }) async {
     setStateCreateStoryStatus(CreateStoryStatus.loading);
     try {
@@ -87,7 +88,8 @@ class StoryProvider with ChangeNotifier {
       await sr.createStory(context, 
         caption: caption!,
         media: media!,
-        type: fileType
+        type: fileType,
+        duration: duration
       );
       setStateCreateStoryStatus(CreateStoryStatus.loaded);
       Future.delayed(Duration.zero, () {

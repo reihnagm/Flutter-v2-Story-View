@@ -7,6 +7,7 @@ import 'package:story_view_app/custom/story_view/index.dart';
 import 'package:story_view_app/data/models/story/story.dart';
 import 'package:story_view_app/providers/story/story.dart';
 import 'package:story_view_app/utils/constant.dart';
+import 'package:story_view_app/utils/helper.dart';
 
 class StoryViewScreen extends StatefulWidget {
   final List<StoryUserItem> storyUserItem;
@@ -33,8 +34,8 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
   void initState() {
     super.initState();
     sc = StoryController();
+    _storyItem = [];
     Future.delayed(Duration.zero, () {
-      _storyItem = [];
       for (StoryUserItem item in widget.storyUserItem) {
         switch (item.type) {
           case "image":
@@ -53,8 +54,9 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
               _storyItem.add(
                 StoryItem.pageVideo(
                   "${AppConstants.baseUrl}/videos/${item.media!}", 
+                  duration: Duration(seconds: Helper.parseDuration(item.duration!).inSeconds),
                   controller: sc,
-                  caption: item.caption
+                  caption: item.caption,
                 )
               );
             });

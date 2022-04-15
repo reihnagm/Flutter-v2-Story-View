@@ -58,17 +58,20 @@ class StoryUserItem {
     this.caption,
     this.media,
     this.type,
+    this.duration
   });
 
   String? uid;
   String? caption;
   String? media;
   String? type;
+  String? duration;
 
   factory StoryUserItem.fromJson(Map<String, dynamic> json) => StoryUserItem(
     uid: json["uid"],
     caption: json["caption"],
     media: json["media"],
     type: json["type"],
+    duration: json["duration"]
   );
 }
