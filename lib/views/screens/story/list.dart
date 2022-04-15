@@ -26,18 +26,20 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
   late StoryController sc;
   late StoryProvider sp;
 
-  List<StoryItem> storyItem = [];
+  List<StoryItem> _storyItem = [];
+  List<StoryItem> get storyItem => [..._storyItem];
 
   @override 
   void initState() {
     super.initState();
     sc = StoryController();
     Future.delayed(Duration.zero, () {
-      for (var item in widget.storyUserItem) {
+      _storyItem = [];
+      for (StoryUserItem item in widget.storyUserItem) {
         switch (item.type) {
           case "image":
             setState(() {
-              storyItem.add(
+              _storyItem.add(
                 StoryItem.pageImage(
                   url: "${AppConstants.baseUrl}/images/${item.media!}", 
                   controller: sc,
@@ -48,7 +50,7 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
           break;
           case "video":
             setState(() {
-              storyItem.add(
+              _storyItem.add(
                 StoryItem.pageVideo(
                   "${AppConstants.baseUrl}/videos/${item.media!}", 
                   controller: sc,

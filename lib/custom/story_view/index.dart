@@ -24,7 +24,7 @@ class StoryItem {
     this.view, {
     required this.duration,
     this.shown = false,
-  }) : assert(duration != null, "[duration] should not be null");
+  });
 
   static StoryItem text({
     required String title,
@@ -169,7 +169,7 @@ class StoryItem {
                   child: Align(
                     alignment: Alignment.bottomLeft,
                     child: SizedBox(
-                      child: caption == null ? const SizedBox() : caption,
+                      child: caption,
                       width: double.infinity,
                     ),
                   ),
@@ -288,7 +288,7 @@ class StoryItem {
           ),
         ),
         shown: shown,
-        duration: duration ?? Duration(seconds: 3));
+        duration: duration ?? const Duration(seconds: 3));
   }
 
   /// Shorthand for creating an inline story item from an image provider such as `AssetImage`
@@ -328,14 +328,14 @@ class StoryItem {
           child: Align(
             alignment: Alignment.bottomLeft,
             child: SizedBox(
-              child: caption == null ? const SizedBox() : caption,
+              child: caption ?? const SizedBox(),
               width: double.infinity,
             ),
           ),
         ),
       ),
       shown: shown,
-      duration: duration ?? Duration(seconds: 3),
+      duration: duration ?? const Duration(seconds: 3),
     );
   }
 }
@@ -375,6 +375,7 @@ class StoryView extends StatefulWidget {
   final StoryController controller;
 
   StoryView({
+    Key? key, 
     required this.storyItems,
     required this.controller,
     this.onComplete,
@@ -383,14 +384,8 @@ class StoryView extends StatefulWidget {
     this.repeat = false,
     this.inline = false,
     this.onVerticalSwipeComplete,
-  })  : assert(storyItems != null && storyItems.length > 0,
-            "[storyItems] should not be null or empty"),
-        assert(progressPosition != null, "[progressPosition] cannot be null"),
-        assert(
-          repeat != null,
-          "[repeat] cannot be null",
-        ),
-        assert(inline != null, "[inline] cannot be null");
+  })  : assert(storyItems.isNotEmpty,
+            "[storyItems] should not be null or empty"), super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -632,6 +627,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
           //               verticalDragInfo!.update(details.primaryDelta!);
 
+          // ignore: todo
           //               // TODO: provide callback interface for animation purposes
           //             },
           //       onVerticalDragEnd: widget.onVerticalSwipeComplete == null

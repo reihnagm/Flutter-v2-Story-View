@@ -2,10 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:mime/mime.dart';
-import 'package:path/path.dart' as p;
-import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
-
-import 'package:video_compress/video_compress.dart';
+import 'package:story_view_app/services/video.dart';
 
 import 'package:photo_manager/photo_manager.dart';
 import 'package:camera/camera.dart';
@@ -13,7 +10,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:story_view_app/main.dart';
+
 import 'package:story_view_app/views/basewidgets/gallery/ready_for_sent.dart';
+
 import 'package:video_editor/video_editor.dart';
 
 class TabCamera extends StatefulWidget {
@@ -141,7 +140,6 @@ class _TabCameraState extends State<TabCamera> {
     initCamera(newIndex);
   }
 
-
   Future<void> onTakePictureButtonPress() async {
     XFile? file = await takePicture();
     if (file != null) {
@@ -217,7 +215,7 @@ class _TabCameraState extends State<TabCamera> {
                             File? fileThumbnail;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
-                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              File ft = await VideoServices.generateFileThumbnail(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
                               });
@@ -237,7 +235,10 @@ class _TabCameraState extends State<TabCamera> {
                           }
                         }
                       } else {
-                        ShowSnackbar.snackbar(context, "Maximal 5 item", "", Colors.redAccent);
+                        setState(() {
+                          multipleFiles.remove(files[i]!.path);
+                          addFiles.removeWhere((el) => el["id"] == i);
+                        });
                         return;
                       }
                     },
@@ -253,7 +254,7 @@ class _TabCameraState extends State<TabCamera> {
                             File? fileThumbnail;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
-                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              File ft = await VideoServices.generateFileThumbnail(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
                               });
@@ -281,7 +282,7 @@ class _TabCameraState extends State<TabCamera> {
                             File? fileThumbnail;
                             String? ext = lookupMimeType(files[i]!.path)!.split("/")[1];
                             if(ext == "mp4") {
-                              File ft = await VideoCompress.getFileThumbnail(files[i]!.path);
+                              File ft = await VideoServices.generateFileThumbnail(files[i]!);
                               setState(() {
                                 fileThumbnail = ft;
                               });
@@ -301,7 +302,10 @@ class _TabCameraState extends State<TabCamera> {
                           }
                         }
                       } else {
-                        ShowSnackbar.snackbar(context, "Maximal 5 item", "", Colors.redAccent);
+                        setState(() {
+                          multipleFiles.remove(files[i]!.path);
+                          addFiles.removeWhere((el) => el["id"] == i);
+                        });
                         return;
                       }
                     },
@@ -381,23 +385,21 @@ class _TabCameraState extends State<TabCamera> {
           onLongPressUp: () async {
             addFiles = [];
             XFile f = await controller!.stopVideoRecording();
+            setState(() {
+              isRecording = false;
+            });
             File file = File(f.path);
             addFiles.add({
               "id": 0,
-              "file": f,
+              "file": file,
               "thumbnail": "",
               "video": VideoEditorController.file(file)..initialize(),
               "type": lookupMimeType(file.path)!.split("/")[1],
               "text": TextEditingController()
             });
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return ReadyForSentScreen(files: addFiles);
-              }));
-            });
-            setState(() {
-              isRecording = false;
-            });
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return ReadyForSentScreen(files: addFiles);
+            }));
           },
           child: isRecording 
           ? Container(
@@ -467,114 +469,123 @@ class _TabCameraState extends State<TabCamera> {
       return center;
     }
 
-    return Scaffold(
-      key: globalKey,
-      body: GestureDetector(
-        onPanUpdate: (details) async {
-          if (details.delta.dy < 0) {
-            FilePickerResult? fpr = await FilePicker.platform.pickFiles(
-              allowMultiple: true,
-              allowCompression: true,
-            );
-            if(fpr != null) {
-              addFiles = [];
-              for (int i = 0; i < fpr.files.length; i++) {
-                PlatformFile f = fpr.files[i];
-                File file = File(f.path!);
-                if(f.extension == "mp4") {
-                  File ft = await VideoCompress.getFileThumbnail(f.path!);
-                  addFiles.add({
-                    "id": i,
-                    "file": file,
-                    "thumbnail": ft,
-                    "video": VideoEditorController.file(file,
-                      maxDuration: const Duration(seconds: 30))..initialize(),
-                    "type": f.extension,
-                    "text": TextEditingController()
-                  });
-                } else {
-                  addFiles.add({
-                    "id": i,
-                    "file": file,
-                    "thumbnail": "",
-                    "video": VideoEditorController.file(file,
-                      maxDuration: const Duration(seconds: 30))..initialize(),
-                    "type": f.extension,
-                    "text": TextEditingController()
+    return buildUI();
+  }
+
+  Widget buildUI() {
+    return Builder(
+      builder: (BuildContext context) {
+        return Scaffold(
+          key: globalKey,
+          body: GestureDetector(
+            onPanUpdate: (details) async {
+              if (details.delta.dy < 0) {
+                FilePickerResult? fpr = await FilePicker.platform.pickFiles(
+                  allowMultiple: true,
+                  allowCompression: true,
+                  allowedExtensions: ['mp4', 'jpeg', 'jpg', 'png'],
+                );
+                if(fpr != null) {
+                  addFiles = [];
+                  for (int i = 0; i < fpr.files.length; i++) {
+                    PlatformFile f = fpr.files[i];
+                    File file = File(f.path!);
+                    if(f.extension == "mp4") {
+                      File ft = await VideoServices.generateFileThumbnail(file);
+                      addFiles.add({
+                        "id": i,
+                        "file": file,
+                        "thumbnail": ft,
+                        "video": VideoEditorController.file(file,
+                          maxDuration: const Duration(seconds: 30))..initialize(),
+                        "type": f.extension,
+                        "text": TextEditingController()
+                      });
+                    } else {
+                      addFiles.add({
+                        "id": i,
+                        "file": file,
+                        "thumbnail": "",
+                        "video": VideoEditorController.file(file,
+                          maxDuration: const Duration(seconds: 30))..initialize(),
+                        "type": f.extension,
+                        "text": TextEditingController()
+                      });
+                    }
+                  }
+                  Future.delayed(const Duration(seconds: 3), () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return ReadyForSentScreen(files: addFiles);
+                    }));
                   });
                 }
               }
-              Future.delayed(const Duration(seconds: 3), () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return ReadyForSentScreen(files: addFiles);
-                }));
-              });
-            }
-          }
-        },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            controller!.value.isInitialized
-            ? Positioned.fill(
-                child: AspectRatio(
-                  aspectRatio: controller!.value.aspectRatio,
-                  child: CameraPreview(controller!),
-                ),
-              )
-            : Container(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildGalleryBar(),
-                  buildControlBar(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text('Hold for Video, or Tap for photo',
-                      style: TextStyle(
-                        color: Colors.white
-                      )
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                controller!.value.isInitialized
+                ? Positioned.fill(
+                    child: AspectRatio(
+                      aspectRatio: controller!.value.aspectRatio,
+                      child: CameraPreview(controller!),
                     ),
                   )
-                ],
-              ),
-            ),
-            multipleFiles.isEmpty 
-            ? const SizedBox() 
-            : Positioned(
-                bottom: 175.0,
-                right: 20.0,
-                child: Container(
-                margin: const EdgeInsets.all(16.0),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF3B833E)
-                ),
-                child: InkWell(
-                  onTap: () { 
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ReadyForSentScreen(
-                        files: addFiles,
-                      )),
-                    );
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 30.0,
-                    ),
+                : Container(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildGalleryBar(),
+                      buildControlBar(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: const Text('Hold for Video, or Tap for photo',
+                          style: TextStyle(
+                            color: Colors.white
+                          )
+                        ),
+                      )
+                    ],
                   ),
-                )
-              )
+                ),
+                multipleFiles.isEmpty 
+                ? const SizedBox() 
+                : Positioned(
+                    bottom: 175.0,
+                    right: 20.0,
+                    child: Container(
+                    margin: const EdgeInsets.all(16.0),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF3B833E)
+                    ),
+                    child: InkWell(
+                      onTap: () { 
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => ReadyForSentScreen(
+                            files: addFiles,
+                          )),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 30.0,
+                        ),
+                      ),
+                    )
+                  )
+                ),
+              ],
             ),
-          ],
-        ),
-      )
+          )
+        );
+      },
     );
   }
 }

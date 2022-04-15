@@ -35,7 +35,7 @@ class CreateStoryScreen extends StatelessWidget {
                       delegate: SliverChildListDelegate(
                         [
                           Container(
-                            margin: EdgeInsets.only(left: 16.0, right: 16.0),
+                            margin: const EdgeInsets.only(left: 16.0, right: 16.0),
                             height: MediaQuery.of(context).size.height,
                             child: Center(
                               child: TextField(
@@ -43,7 +43,7 @@ class CreateStoryScreen extends StatelessWidget {
                                 maxLines: 8,
                                 autofocus: true,
                                 focusNode: FocusNode(canRequestFocus: true),
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide.none
                                   ),
@@ -51,7 +51,7 @@ class CreateStoryScreen extends StatelessWidget {
                                     borderSide: BorderSide.none
                                   ),
                                 ),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 30.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white
@@ -67,19 +67,19 @@ class CreateStoryScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Container(
-                    margin: EdgeInsets.only(bottom: 15.0, right: 15.0),
+                    margin: const EdgeInsets.only(bottom: 15.0, right: 15.0),
                     width: 60.0,
                     height: 60.0,
                     child: ElevatedButton(
                       onPressed: () {},
-                      child: Center(
+                      child: const Center(
                         child: Icon(
                           Icons.send, 
                           color: Colors.black
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        shape: CircleBorder(),
+                        shape: const CircleBorder(),
                         elevation: 0.0,
                         primary: Colors.white, 
                         onPrimary: Colors.red,

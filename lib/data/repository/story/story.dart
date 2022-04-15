@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:story_view_app/data/models/story/story.dart';
+import 'package:story_view_app/data/repository/auth/auth.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:story_view_app/utils/constant.dart';
 import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
 
 class StoryRepo {
+  final AuthRepo ar;
+  StoryRepo({
+    required this.ar
+  });
 
   Future<List<StoryUser>?> getStory(BuildContext context) async {
     try {

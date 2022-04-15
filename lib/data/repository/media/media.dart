@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -28,7 +29,7 @@ class MediaRepo {
       });
       Response res = await dio.post("${AppConstants.baseUrl}/upload", data: formData);
       Map<String, dynamic> data = res.data;
-      return data["data"]["media"];
+      return compute(parseMedia, data);
     } on DioError catch(e) {
       ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);
     } catch(e, stacktrace) {
@@ -37,4 +38,8 @@ class MediaRepo {
     return "";
   }
 
+}
+
+String parseMedia(data) {
+  return data["data"]["media"];
 }

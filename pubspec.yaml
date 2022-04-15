@@ -23,6 +23,8 @@ dependencies:
   
   # F
   flutter_cache_manager: ^3.1.2
+  flutter_spinkit: ^5.1.0
+  flutter_screenutil: ^5.4.0
   file_picker: ^4.5.1
 
   # G
@@ -61,3 +63,11 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/fonts/
+
+  fonts:
+    - family: Open-Sans
+      fonts: 
+      - asset: assets/fonts/open-sans/OpenSans-Regular.ttf
+      - asset: assets/fonts/open-sans/OpenSans-Light.ttf
+      - asset: assets/fonts/open-sans/OpenSans-Bold.ttf

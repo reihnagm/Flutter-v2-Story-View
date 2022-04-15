@@ -1,19 +1,25 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
-import 'package:story_view_app/create_story.dart';
 import 'package:story_view_app/providers.dart';
+import 'package:story_view_app/providers/auth/auth.dart';
 import 'package:story_view_app/providers/story/story.dart';
-import 'package:story_view_app/story_view.dart';
+
+import 'package:story_view_app/views/screens/story/list.dart';
+
 import 'package:story_view_app/utils/constant.dart';
 
 import 'package:story_view_app/views/basewidgets/gallery/custom_gallery.dart';
 import 'package:story_view_app/views/basewidgets/painter/wa_status.dart';
 
 import 'package:story_view_app/container.dart' as core;
+
+import 'package:story_view_app/views/screens/story/create.dart';
+import 'package:story_view_app/views/screens/auth/sign_in.dart';
 
 List<CameraDescription>? cameras;
 
@@ -22,7 +28,7 @@ Future<void> main() async {
   await core.init();
   try {
     cameras = await availableCameras();
-  } on CameraException catch (e) {
+  } on CameraException catch(e) {
     debugPrint(e.code);
     debugPrint(e.description);
   }
@@ -53,13 +59,26 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Story View',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomeScreen(key: UniqueKey()),
+    return ScreenUtilInit(
+      designSize: const Size(360.0, 640.0),
+      builder: (BuildContext context) {
+        return  MaterialApp(
+          title: 'Story Status',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primaryColor: Colors.white,
+          ),
+          home: Consumer<AuthProvider>(
+            builder: (BuildContext context, AuthProvider authProvider, Widget? child) {
+              if(authProvider.isLogggedIn) {
+                return const HomeScreen();
+              } else {
+                return const SignInScreen();
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -124,8 +143,13 @@ class _HomeScreenState extends State<HomeScreen> {
             if(storyProvider.getStoryStatus == GetStoryStatus.loading) {
               return Container();
             }
-             if(storyProvider.getStoryStatus == GetStoryStatus.empty) {
-              return Container();
+            if(storyProvider.getStoryStatus == GetStoryStatus.empty) {
+              return CustomScrollView(
+                physics:  const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                slivers: [
+                  selfStatus(context)
+                ],
+              );
             }
             if(storyProvider.getStoryStatus == GetStoryStatus.error) {
               return Container();
@@ -141,94 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   slivers: [
 
-                    SliverToBoxAdapter(
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                          top: 5.0,
-                          left: 16.0, 
-                          right: 16.0,
-                          bottom: 5.0,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => TabCamera(key: UniqueKey())),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      CachedNetworkImage(
-                                        filterQuality: FilterQuality.medium,
-                                        imageUrl: "https://cdn.pixabay.com/photo/2013/07/13/12/07/avatar-159236_1280.png",
-                                        errorWidget: (BuildContext context, String url, dynamic error) => Container(),
-                                        imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
-                                          return CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundColor: Colors.transparent,
-                                            backgroundImage: imageProvider,
-                                          );
-                                        },
-                                      ),
-                                      Positioned(
-                                        top: 20.0,
-                                        right: -5.0,
-                                        bottom: 0.0,
-                                        child: Container(
-                                          width: 30.0,
-                                          height: 30.0,
-                                          decoration: BoxDecoration(
-                                            color: Colors.green[700],
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2.0
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.add,
-                                            size: 15.0,
-                                            color: Colors.white,
-                                          )
-                                        ),
-                                      )
-                                    ]
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Text("Status saya",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14.0
-                                          ),
-                                        ),
-                                        SizedBox(height: 4.0),
-                                        Text("Ketuk untuk menambahkan pembaruan status",
-                                          style: TextStyle(
-                                            fontSize: 12.0
-                                          ),
-                                        ),
-                                      ]
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                   selfStatus(context),
 
                     SliverToBoxAdapter(
                       child: Container(
@@ -338,7 +275,97 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         )
       );
-    },
-  );
+    });
+  }
+
+  Widget selfStatus(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Container(
+        margin: const EdgeInsets.only(
+          top: 5.0,
+          left: 16.0, 
+          right: 16.0,
+          bottom: 5.0,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => TabCamera(key: UniqueKey())),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CachedNetworkImage(
+                        filterQuality: FilterQuality.medium,
+                        imageUrl: "${AppConstants.baseUrl}/images/${context.read<AuthProvider>().getPic}",
+                        errorWidget: (BuildContext context, String url, dynamic error) => Container(),
+                        imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
+                          return CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: imageProvider,
+                          );
+                        },
+                      ),
+                      Positioned(
+                        top: 20.0,
+                        right: -5.0,
+                        bottom: 0.0,
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          decoration: BoxDecoration(
+                            color: Colors.green[700],
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2.0
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            size: 15.0,
+                            color: Colors.white,
+                          )
+                        ),
+                      )
+                    ]
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text("Status saya",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0
+                          ),
+                        ),
+                        SizedBox(height: 4.0),
+                        Text("Ketuk untuk menambahkan pembaruan status",
+                          style: TextStyle(
+                            fontSize: 12.0
+                          ),
+                        ),
+                      ]
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 }
 }
