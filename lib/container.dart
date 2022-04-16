@@ -33,7 +33,8 @@ Future<void> init() async {
   ));
   
   getIt.registerFactory(() => AuthProvider(
-    ar: getIt(), 
+    ar: getIt(),
+    mr: getIt(), 
     sp: getIt(),
     ns: getIt()
   ));

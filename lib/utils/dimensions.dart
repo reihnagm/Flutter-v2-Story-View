@@ -2,7 +2,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Dimensions {
   static double fontSizeOverExtraSmall = 8.0.sp;
-  static double fontSizeExtraSmall = 14.0.sp;
+  static double fontSizeExtraSmall = 12.0.sp;
   static double fontSizeSmall = 18.0.sp;
   static double fontSizeDefault = 20.0.sp;
   static double fontSizeLarge = 16.0.sp;

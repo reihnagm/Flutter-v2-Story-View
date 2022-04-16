@@ -11,6 +11,7 @@ import 'package:story_view_app/utils/dimensions.dart';
 import 'package:story_view_app/views/basewidgets/button/custom.dart';
 import 'package:story_view_app/views/basewidgets/textfield/password.dart';
 import 'package:story_view_app/views/basewidgets/textfield/textform.dart';
+import 'package:story_view_app/views/screens/auth/sign_up.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({ Key? key }) : super(key: key);
@@ -84,7 +85,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Text("Story Status",
             style: openSans.copyWith(
               color: ColorResources.textBlackPrimary,
-              fontSize: Dimensions.fontSizeLarge,
+              fontSize: Dimensions.fontSizeSmall,
               fontWeight: FontWeight.bold
             ),
           ),
@@ -183,7 +184,7 @@ class _SignInScreenState extends State<SignInScreen> {
             color: ColorResources.transparent,
             child: InkWell(
               onTap: () {
-                // navigation.pushBackNavReplacement(context, const RegisterPage());
+                navigation.pushNav(context, const SignUpScreen());
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

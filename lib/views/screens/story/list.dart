@@ -92,7 +92,9 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
         
         return WillPopScope(
           onWillPop: willPopScope,
-          child: Scaffold(
+          child: storyItem.isEmpty 
+          ? Container()
+          : Scaffold(
             key: globalKey,
             backgroundColor: Colors.black,
             appBar: AppBar(

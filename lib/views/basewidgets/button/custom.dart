@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import 'package:story_view_app/utils/box_shadow.dart';
-import 'package:story_view_app/utils/color_resources.dart';
-import 'package:story_view_app/utils/custom_themes.dart';
 import 'package:story_view_app/utils/dimensions.dart';
 
 import 'package:story_view_app/views/basewidgets/button/bounce.dart';
@@ -11,12 +8,14 @@ import 'package:story_view_app/views/basewidgets/button/bounce.dart';
 class CustomButton extends StatelessWidget {
   final Function() onTap;
   final String btnTxt;
+  final double width;
   final double height;
   final Color loadingColor;
   final Color btnColor;
   final Color btnTextColor;
   final Color btnBorderColor;
   final bool isBorder;
+  final bool isBorderRadius;
   final bool isLoading;
   final bool isBoxShadow;
 
@@ -24,13 +23,15 @@ class CustomButton extends StatelessWidget {
     Key? key, 
     required this.onTap, 
     required this.btnTxt, 
+    this.width = double.infinity,
     this.height = 45.0,
     this.isLoading = false,
-    this.loadingColor = ColorResources.white,
-    this.btnColor = const Color.fromRGBO(51, 49, 68, 1.0),
-    this.btnTextColor = ColorResources.white,
+    this.loadingColor = Colors.white,
+    this.btnColor = Colors.black87,
+    this.btnTextColor = Colors.white,
     this.btnBorderColor = Colors.transparent,
     this.isBorder = false,
+    this.isBorderRadius = false,
     this.isBoxShadow = true,
   }) : super(key: key);
 
@@ -39,22 +40,27 @@ class CustomButton extends StatelessWidget {
     return Bouncing(
       onPress: onTap,
       child: Container(
+        width: width,
         height: height,
-        width: double.infinity,
         decoration: BoxDecoration(
-          boxShadow: isBoxShadow 
-          ? boxShadow 
-          : [],
+          boxShadow: isBoxShadow ? [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2.0,
+              blurRadius: 2.0,
+              offset: const Offset(0.0, 0.0),
+            ),  
+          ] : [],
           color: btnColor,
           border: Border.all(
-            color: isBorder 
-            ? btnBorderColor 
-            : Colors.transparent,
+            color: isBorder ? btnBorderColor : Colors.transparent,
           ),
-          borderRadius: BorderRadius.circular(10.0)
+          borderRadius: isBorderRadius 
+          ? BorderRadius.circular(10.0)
+          : BorderRadius.circular(0.0)
         ),
-        child: isLoading 
-        ? Center(
+        child: isLoading ? 
+          Center(
             child: SpinKitFadingCircle(
               color: loadingColor,
               size: 25.0
@@ -62,9 +68,10 @@ class CustomButton extends StatelessWidget {
           )
         : Center(
           child: Text(btnTxt,
-            style: openSans.copyWith(
+            style: TextStyle(
               color: btnTextColor,
-              fontSize: Dimensions.fontSizeExtraSmall,
+              fontWeight: FontWeight.bold,
+              fontSize: Dimensions.fontSizeExtraSmall
             )
           ),
         )

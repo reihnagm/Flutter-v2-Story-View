@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:story_view_app/providers.dart';
 import 'package:story_view_app/providers/auth/auth.dart';
 import 'package:story_view_app/providers/story/story.dart';
+import 'package:story_view_app/utils/color_resources.dart';
+import 'package:story_view_app/views/basewidgets/drawer/drawer.dart';
 
 import 'package:story_view_app/views/screens/story/list.dart';
 
@@ -46,6 +50,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  
+  Timer? timer;
+  var value = 0;
 
   @override 
   void initState() {
@@ -114,7 +121,11 @@ class _HomeScreenState extends State<HomeScreen> {
       sp = context.read<StoryProvider>();
       return Scaffold(
         resizeToAvoidBottomInset: false,
+        drawer: DrawerWidget(key: UniqueKey()),
         appBar: AppBar(
+          iconTheme: const IconThemeData(
+            color: ColorResources.black
+          ),
           backgroundColor: Colors.white,
           elevation: 0.0,
           title: const Text("Story View",
@@ -239,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Text(storyProvider.storyData[i].user!.fullname!,
+                                            Text(storyProvider.storyData[i].user!.fullname.toString(),
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16.0

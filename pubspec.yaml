@@ -33,6 +33,9 @@ dependencies:
   # H
   helpers: ^1.1.4
 
+  # I
+  image_cropper: ^1.4.1
+
   # P
   photo_manager: ^1.3.10
   provider: ^6.0.1

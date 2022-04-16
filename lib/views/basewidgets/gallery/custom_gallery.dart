@@ -500,6 +500,7 @@ class _TabCameraState extends State<TabCamera> {
                 FilePickerResult? fpr = await FilePicker.platform.pickFiles(
                   allowMultiple: true,
                   allowCompression: true,
+                  type: FileType.custom,
                   allowedExtensions: ['mp4', 'jpeg', 'jpg', 'png'],
                 );
                 if(fpr != null) {

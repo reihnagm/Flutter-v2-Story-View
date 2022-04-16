@@ -444,6 +444,7 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                               ),
                               child: Stack(
                                 clipBehavior: Clip.none,
+                                fit: StackFit.expand,
                                 children: [
                                   Image.file(File(files[i]["type"] == "mp4" 
                                   ? files[i]["thumbnail"].path 
