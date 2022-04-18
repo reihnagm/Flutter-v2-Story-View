@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 import 'package:story_view_app/utils/constant.dart';
 import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
+import 'package:uuid/uuid.dart';
 
 class MediaRepo {
   
@@ -23,7 +24,7 @@ class MediaRepo {
       FormData formData = FormData.fromMap({
         "media": await MultipartFile.fromFile(
           file.path, 
-          filename: p.basenameWithoutExtension(file.path) + "-" + DateTime.now().toString() + "." + subtype,
+          filename: p.basenameWithoutExtension(file.path) + "-" + const Uuid().v4() + "." + subtype,
           contentType: MediaType(type, subtype)
         ),
       });

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:mime/mime.dart';
+import 'package:story_view_app/services/navigation.dart';
 import 'package:story_view_app/services/video.dart';
 
 import 'package:photo_manager/photo_manager.dart';
@@ -10,6 +12,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:story_view_app/main.dart';
+import 'package:story_view_app/utils/color_resources.dart';
+import 'package:story_view_app/utils/custom_themes.dart';
+import 'package:story_view_app/utils/dimensions.dart';
 
 import 'package:story_view_app/views/basewidgets/gallery/ready_for_sent.dart';
 
@@ -27,12 +32,15 @@ class TabCamera extends StatefulWidget {
 class _TabCameraState extends State<TabCamera> {
   GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
 
+  Timer? timer;
+  int sec = 0;
+
   List<Widget> mediaList = [];
   List<File?> files = [];
   List<Map<String, dynamic>> addFiles = [];
   List<String?> multipleFiles = [];
   int currentPage = 0;
-  CameraController? controller;
+  CameraController? cameraC;
   int cameraIndex = 0;
 
   bool isRecording = false;
@@ -40,7 +48,29 @@ class _TabCameraState extends State<TabCamera> {
 
   double containerHeight = 110.0;
 
-  Future<void> getNewMedia() async {
+  @override
+  void initState() {
+    super.initState();
+    if (cameras == null || cameras!.isEmpty) {
+      setState(() {
+        if(mounted) {
+          cameraNotAvailable = true;
+        }
+      });
+    }
+    getMediaAssets();
+    initCamera(cameraIndex);
+  }
+  
+  @override
+  void dispose() {
+    if (cameraC != null) {
+      cameraC!.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> getMediaAssets() async {
     List<AssetPathEntity> albums = await PhotoManager.getAssetPathList();
     List<AssetEntity> media = await albums[0].getAssetListPaged(currentPage, 60);
     List<Widget> temp = [];
@@ -88,17 +118,17 @@ class _TabCameraState extends State<TabCamera> {
   }
 
   Future<void> initCamera(int index) async {
-    if (controller != null) {
-      await controller!.dispose();
+    if (cameraC != null) {
+      await cameraC!.dispose();
     }
-    controller = CameraController(cameras![index], ResolutionPreset.high);
-    controller!.addListener(() {
+    cameraC = CameraController(cameras![index], ResolutionPreset.high);
+    cameraC!.addListener(() {
       if (mounted) setState(() {});
     });
 
     try {
-      await controller!.initialize();
-      controller!.setFlashMode(FlashMode.off);
+      await cameraC!.initialize();
+      cameraC!.setFlashMode(FlashMode.off);
     } on CameraException catch (e) {
       debugPrint(e.toString());
     }
@@ -111,14 +141,13 @@ class _TabCameraState extends State<TabCamera> {
   }
 
   Future<void> setFlashMode(FlashMode mode) async {
-    if (controller == null) {
+    if (cameraC == null) {
       return;
     }
-
     try {
-      await controller!.setFlashMode(mode);
-    } on CameraException catch (e) {
-      debugPrint(e.toString());
+      await cameraC!.setFlashMode(mode);
+    } on CameraException catch (e, stacktrace) {
+      debugPrint(stacktrace.toString());
       rethrow;
     }
   }
@@ -131,9 +160,9 @@ class _TabCameraState extends State<TabCamera> {
     });
   }
 
-  void _onSwitchCamera() {
-    if (controller == null ||
-      !controller!.value.isInitialized || controller!.value.isTakingPicture) {
+  void onSwitchCamera() {
+    if (cameraC == null ||
+      !cameraC!.value.isInitialized || cameraC!.value.isTakingPicture) {
       return;
     }
     final newIndex = cameraIndex + 1 == cameras!.length ? 0 : cameraIndex + 1;
@@ -148,25 +177,22 @@ class _TabCameraState extends State<TabCamera> {
         "id": 0,
         "file": f,
         "thumbnail": "",
-        "video": VideoEditorController.file(f,
-          maxDuration: const Duration(seconds: 30))..initialize(),
+        "video": "",
         "duration": "",
         "type": lookupMimeType(file.path)!.split("/")[1],
         "text": TextEditingController()
       });
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ReadyForSentScreen(files: addFiles);
-      }));
+      NavigationService().pushNavReplacement(context,  ReadyForSentScreen(files: addFiles));
     }
   }
 
   Future<XFile?> takePicture() async {
     XFile? file;
-    if (!controller!.value.isInitialized || controller!.value.isTakingPicture) {
+    if (!cameraC!.value.isInitialized || cameraC!.value.isTakingPicture) {
       return null;
     }
     try {
-      file = await controller!.takePicture();
+      file = await cameraC!.takePicture();
     } on CameraException catch (e) {
       debugPrint(e.toString());
       return null;
@@ -232,7 +258,8 @@ class _TabCameraState extends State<TabCamera> {
                                 "file": files[i],
                                 "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
-                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                  maxDuration: const Duration(seconds: 30)
+                                )..initialize(),
                                 "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
@@ -275,7 +302,8 @@ class _TabCameraState extends State<TabCamera> {
                                 "file": files[i],
                                 "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
-                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                  maxDuration: const Duration(seconds: 30)
+                                )..initialize(),
                                 "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
@@ -307,7 +335,8 @@ class _TabCameraState extends State<TabCamera> {
                                 "file": files[i],
                                 "thumbnail": fileThumbnail ?? "",
                                 "video": VideoEditorController.file(files[i]!,
-                                  maxDuration: const Duration(seconds: 30))..initialize(),
+                                  maxDuration: const Duration(seconds: 30)
+                                )..initialize(),
                                 "duration": duration ?? "",
                                 "type": ext,
                                 "text": TextEditingController()
@@ -373,13 +402,13 @@ class _TabCameraState extends State<TabCamera> {
         Material(
           color: Colors.transparent,
           child: IconButton(
-            color: controller?.value.flashMode == FlashMode.off
+            color: cameraC?.value.flashMode == FlashMode.off
             ? Colors.white
             : Colors.blue,
             icon: const Icon(Icons.flash_auto),
-            onPressed: controller != null
+            onPressed: cameraC != null
             ? () {
-              if(controller!.value.flashMode == FlashMode.off) {
+              if(cameraC!.value.flashMode == FlashMode.off) {
                 onSetFlashModeButtonPressed(FlashMode.always);
               } else {
                 onSetFlashModeButtonPressed(FlashMode.off);
@@ -391,31 +420,40 @@ class _TabCameraState extends State<TabCamera> {
         GestureDetector(
           onTap: !isRecording ? onTakePictureButtonPress : () {},
           onLongPress: () async {
-            await controller!.startVideoRecording();
+            await cameraC!.startVideoRecording();
+            timer = Timer.periodic(const Duration(milliseconds: 500), (t) {
+              setState(() {
+                sec++;
+              });
+            });
             setState(() {
               isRecording = true;
             });
           },
           onLongPressUp: () async {
             addFiles = [];
-            XFile f = await controller!.stopVideoRecording();
+            XFile f = await cameraC!.stopVideoRecording();
             setState(() {
               isRecording = false;
             });
+            timer?.cancel();
             File file = File(f.path);
+            String? duration = await VideoServices.getDuration(file);
             addFiles.add({
               "id": 0,
               "file": file,
               "thumbnail": "",
-              "video": VideoEditorController.file(file)..initialize(),
-              "duration": await VideoServices.getDuration(file),
+              "video": VideoEditorController.file(file,
+                maxDuration: const Duration(seconds: 30)
+              )..initialize(),
+              "duration": duration,
               "type": lookupMimeType(file.path)!.split("/")[1],
               "text": TextEditingController()
             });
             Future.delayed(const Duration(seconds: 3), () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return ReadyForSentScreen(files: addFiles);
-              }));
+              NavigationService().pushNavReplacement(context, ReadyForSentScreen(
+                files: addFiles,
+              ));
             });
           },
           child: isRecording 
@@ -447,33 +485,11 @@ class _TabCameraState extends State<TabCamera> {
           child: IconButton(
             color: Colors.white,
             icon: const Icon(Icons.switch_camera),
-            onPressed: _onSwitchCamera,
+            onPressed: onSwitchCamera,
           ),
         )
       ],
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (cameras == null || cameras!.isEmpty) {
-      setState(() {
-        if(mounted) {
-          cameraNotAvailable = true;
-        }
-      });
-    }
-    getNewMedia();
-    initCamera(cameraIndex);
-  }
-  
-  @override
-  void dispose() {
-    super.dispose();
-    if (controller != null) {
-      controller!.dispose();
-    }
   }
 
   @override
@@ -505,28 +521,58 @@ class _TabCameraState extends State<TabCamera> {
                 );
                 if(fpr != null) {
                   addFiles = [];
-                  for (int i = 0; i < fpr.files.length; i++) {
-                    PlatformFile f = fpr.files[i];
+                  if(fpr.count > 1) {
+                    for (int i = 0; i < fpr.files.length; i++) {
+                      PlatformFile f = fpr.files[i];
+                      File file = File(f.path!);
+                      if(f.extension == "mp4") {
+                        File ft = await VideoServices.generateFileThumbnail(file);
+                        addFiles.add({
+                          "id": i,
+                          "file": file,
+                          "thumbnail": ft,
+                          "video": VideoEditorController.file(file,
+                            maxDuration: const Duration(seconds: 30)
+                          )..initialize(),
+                          "duration": await VideoServices.getDuration(file),
+                          "type": f.extension,
+                          "text": TextEditingController()
+                        });
+                      } else {
+                        addFiles.add({ 
+                          "id": i,
+                          "file": file,
+                          "thumbnail": "",
+                          "video": VideoEditorController.file(file,
+                            maxDuration: const Duration(seconds: 30)
+                          )..initialize(),
+                          "duration": "",
+                          "type": f.extension,
+                          "text": TextEditingController()
+                        });
+                      }
+                    }
+                  } else {
+                    PlatformFile f = fpr.files.single;
                     File file = File(f.path!);
                     if(f.extension == "mp4") {
-                      File ft = await VideoServices.generateFileThumbnail(file);
                       addFiles.add({
-                        "id": i,
+                        "id": 0,
                         "file": file,
-                        "thumbnail": ft,
+                        "thumbnail": "",
                         "video": VideoEditorController.file(file,
-                          maxDuration: const Duration(seconds: 30))..initialize(),
+                          maxDuration: const Duration(seconds: 30)
+                        )..initialize(),
                         "duration": await VideoServices.getDuration(file),
                         "type": f.extension,
                         "text": TextEditingController()
                       });
                     } else {
                       addFiles.add({
-                        "id": i,
-                        "file": file,
+                        "id": 0,
                         "thumbnail": "",
-                        "video": VideoEditorController.file(file,
-                          maxDuration: const Duration(seconds: 30))..initialize(),
+                        "file": file,
+                        "video": "",
                         "duration": "",
                         "type": f.extension,
                         "text": TextEditingController()
@@ -534,9 +580,7 @@ class _TabCameraState extends State<TabCamera> {
                     }
                   }
                   Future.delayed(const Duration(seconds: 3), () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return ReadyForSentScreen(files: addFiles);
-                    }));
+                    NavigationService().pushNavReplacement(context, ReadyForSentScreen(files: addFiles));
                   });
                 }
               }
@@ -544,11 +588,11 @@ class _TabCameraState extends State<TabCamera> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                controller!.value.isInitialized
+                cameraC!.value.isInitialized
                 ? Positioned.fill(
                     child: AspectRatio(
-                      aspectRatio: controller!.value.aspectRatio,
-                      child: CameraPreview(controller!),
+                      aspectRatio: cameraC!.value.aspectRatio,
+                      child: CameraPreview(cameraC!),
                     ),
                   )
                 : Container(),
@@ -562,9 +606,10 @@ class _TabCameraState extends State<TabCamera> {
                       buildControlBar(),
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: const Text('Hold for Video, or Tap for photo',
-                          style: TextStyle(
-                            color: Colors.white
+                        child: Text(sec == 0 ? 'Hold for Video, or Tap for photo' : sec.toString(),
+                          style: openSans.copyWith(
+                            color: ColorResources.white,
+                            fontSize: Dimensions.fontSizeExtraSmall,
                           )
                         ),
                       )
@@ -584,11 +629,9 @@ class _TabCameraState extends State<TabCamera> {
                     ),
                     child: InkWell(
                       onTap: () { 
-                        Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => ReadyForSentScreen(
-                            files: addFiles,
-                          )),
-                        );
+                        NavigationService().pushNavReplacement(context, ReadyForSentScreen(
+                          files: addFiles,
+                        ));
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(8.0),

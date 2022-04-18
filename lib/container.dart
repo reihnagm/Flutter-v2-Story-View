@@ -19,6 +19,7 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => MediaRepo());
   getIt.registerLazySingleton(() => StoryRepo(
     ar: getIt(),
+    mr: getIt(),
     ap: getIt()
   ));
 

@@ -8,7 +8,6 @@ import 'package:image_cropper/image_cropper.dart';
 
 import 'package:story_view_app/providers/auth/auth.dart';
 
-import 'package:story_view_app/utils/box_shadow.dart';
 import 'package:story_view_app/utils/color_resources.dart';
 import 'package:story_view_app/utils/custom_themes.dart';
 import 'package:story_view_app/utils/dimensions.dart';

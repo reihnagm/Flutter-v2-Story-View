@@ -24,7 +24,7 @@ class AuthRepo {
       Map<String, dynamic> data = res.data;
       return compute(parseSignIn, data);
     } on DioError catch(e) {
-      ShowSnackbar.snackbar(context, e.toString(), "", ColorResources.error);
+      ShowSnackbar.snackbar(context, e.response!.data.toString(), "", ColorResources.error);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     } 
@@ -49,7 +49,7 @@ class AuthRepo {
       Map<String, dynamic> data = res.data;
       return compute(parseSignUp, data);
     } on DioError catch(e) {
-      ShowSnackbar.snackbar(context, e.toString(), "", ColorResources.error);
+      ShowSnackbar.snackbar(context, e.response!.data.toString(), "", ColorResources.error);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     }

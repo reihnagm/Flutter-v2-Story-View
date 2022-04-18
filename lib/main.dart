@@ -4,18 +4,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'package:story_view_app/providers.dart';
 import 'package:story_view_app/providers/auth/auth.dart';
 import 'package:story_view_app/providers/story/story.dart';
+
 import 'package:story_view_app/utils/color_resources.dart';
+import 'package:story_view_app/utils/constant.dart';
+import 'package:story_view_app/utils/dimensions.dart';
+
 import 'package:story_view_app/views/basewidgets/drawer/drawer.dart';
 
 import 'package:story_view_app/views/screens/story/list.dart';
-
-import 'package:story_view_app/utils/constant.dart';
 
 import 'package:story_view_app/views/basewidgets/gallery/custom_gallery.dart';
 import 'package:story_view_app/views/basewidgets/painter/wa_status.dart';
@@ -35,6 +38,8 @@ Future<void> main() async {
   } on CameraException catch(e) {
     debugPrint(e.code);
     debugPrint(e.description);
+  } catch(e, stacktrace) {
+    debugPrint(stacktrace.toString());
   }
   runApp(MultiProvider(
     providers: providers,
@@ -152,24 +157,62 @@ class _HomeScreenState extends State<HomeScreen> {
         body: Consumer<StoryProvider>(
           builder: (BuildContext context, StoryProvider storyProvider, Widget? child) {
             if(storyProvider.getStoryStatus == GetStoryStatus.loading) {
-              return Container();
+              return const Center(
+                child: SpinKitChasingDots(
+                  color: ColorResources.loaderBluePrimary,
+                  size: 20.0,
+                ),
+              );
             }
             if(storyProvider.getStoryStatus == GetStoryStatus.empty) {
-              return CustomScrollView(
-                physics:  const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                slivers: [
-                  selfStatus(context)
-                ],
+              return RefreshIndicator(
+                backgroundColor: ColorResources.white,
+                color: ColorResources.loaderBluePrimary,
+                onRefresh: () {
+                  return Future.sync(() {
+                    sp.getStory(context);
+                  });
+                },
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  slivers: [
+                    selfStatus(context)
+                  ],
+                ),
               );
             }
             if(storyProvider.getStoryStatus == GetStoryStatus.error) {
-              return Container();
+              return RefreshIndicator(
+                backgroundColor: ColorResources.white,
+                color: ColorResources.loaderBluePrimary,
+                onRefresh: () {
+                  return Future.sync(() {
+                    sp.getStory(context);
+                  });
+                },
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  slivers: [
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Text("Oops! There was Problem",
+                          style: TextStyle(
+                            fontSize: Dimensions.fontSizeExtraSmall
+                          ),
+                        )
+                      ),
+                    )
+                  ],
+                ),
+              );
             }
             if(storyProvider.getStoryStatus == GetStoryStatus.loaded) {
               return RefreshIndicator(
+                backgroundColor: ColorResources.white,
+                color: ColorResources.loaderBluePrimary,
                 onRefresh: () {
                   return Future.sync(() {
-
+                    sp.getStory(context);
                   });
                 },
                 child: CustomScrollView(
@@ -224,7 +267,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       CachedNetworkImage(
                                         imageUrl: "${AppConstants.baseUrl}/images/${storyProvider.storyData[i].user!.pic}",
-                                        errorWidget: (BuildContext context, String url, dynamic error) => const Icon(Icons.person),
                                         imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
                                           return CustomPaint(
                                             foregroundPainter: DashedCirclePainter(
@@ -237,11 +279,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                               margin: const EdgeInsets.all(3.0),
                                               child: CircleAvatar(
                                                 radius: 20.0,
-                                                backgroundColor: Colors.transparent,
+                                                backgroundColor: ColorResources.grey,
                                                 backgroundImage: imageProvider,
                                               ),
                                             ),
                                           );
+                                        },
+                                        errorWidget: (BuildContext context, String url, dynamic error) {
+                                          return CustomPaint(
+                                            foregroundPainter: DashedCirclePainter(
+                                              dashes: storyProvider.storyData[i].user!.itemCount!,
+                                              gapSize: 4,
+                                              color: Colors.green[300]!,
+                                              strokeWidth: 2
+                                            ),
+                                            child: Container(
+                                              margin: const EdgeInsets.all(3.0),
+                                              child: const CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: ColorResources.grey,
+                                              ),
+                                            ),
+                                          ); 
                                         },
                                       ),
                                       Container(
@@ -317,12 +376,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       CachedNetworkImage(
                         filterQuality: FilterQuality.medium,
                         imageUrl: "${AppConstants.baseUrl}/images/${context.read<AuthProvider>().getPic}",
-                        errorWidget: (BuildContext context, String url, dynamic error) => Container(),
                         imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
                           return CircleAvatar(
                             radius: 20.0,
                             backgroundColor: Colors.transparent,
                             backgroundImage: imageProvider,
+                          );
+                        },
+                        errorWidget: (BuildContext context, String url, dynamic error) {
+                          return const CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor: ColorResources.grey,
                           );
                         },
                       ),

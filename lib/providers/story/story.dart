@@ -7,7 +7,6 @@ import 'package:story_view_app/data/models/story/story.dart';
 
 import 'package:story_view_app/data/repository/media/media.dart';
 import 'package:story_view_app/data/repository/story/story.dart';
-import 'package:story_view_app/main.dart';
 import 'package:story_view_app/services/navigation.dart';
 
 enum GetStoryStatus { idle, loading, loaded, empty, error }
@@ -76,25 +75,17 @@ class StoryProvider with ChangeNotifier {
   }
 
   Future<void> createStory(BuildContext context, {
-    required String? caption,
-    required File file,
-    required String duration
+    required List<Map<String, dynamic>> files,
   }) async {
     setStateCreateStoryStatus(CreateStoryStatus.loading);
     try {
-      String? mimeType = lookupMimeType(file.path); 
-      String fileType = mimeType!.split("/")[0];
-      String? media = await mr.media(context, file: file);
       await sr.createStory(context, 
-        caption: caption!,
-        media: media!,
-        type: fileType,
-        duration: duration
+        files: files,
       );
-      setStateCreateStoryStatus(CreateStoryStatus.loaded);
       Future.delayed(Duration.zero, () {
-        ns.pushNav(context, HomeScreen(key: UniqueKey()));
+        getStory(context);
       });
+      setStateCreateStoryStatus(CreateStoryStatus.loaded);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
       setStateCreateStoryStatus(CreateStoryStatus.error);
