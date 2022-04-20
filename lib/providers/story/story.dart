@@ -8,9 +8,14 @@ import 'package:story_view_app/data/models/story/story.dart';
 import 'package:story_view_app/data/repository/media/media.dart';
 import 'package:story_view_app/data/repository/story/story.dart';
 import 'package:story_view_app/services/navigation.dart';
+import 'package:story_view_app/services/video.dart';
+import 'package:video_editor/video_editor.dart';
 
 enum GetStoryStatus { idle, loading, loaded, empty, error }
+
 enum CreateStoryStatus { idle, loading, loaded, empty, error }
+enum CreateStoryVideoStatus { idle, loading, loaded, empty, error }
+enum CreateStoryImageStatus { idle, loading, loaded, empty, error }
 
 class StoryProvider with ChangeNotifier {
   final StoryRepo sr;
@@ -21,6 +26,10 @@ class StoryProvider with ChangeNotifier {
     required this.mr,
     required this.ns
   });
+
+  String? duration = "";
+  String? media = "";
+  File? path;
 
   List<StoryUser> _storyData = [];
   List<StoryUser> get storyData => [..._storyData];
@@ -79,13 +88,55 @@ class StoryProvider with ChangeNotifier {
   }) async {
     setStateCreateStoryStatus(CreateStoryStatus.loading);
     try {
-      await sr.createStory(context, 
-        files: files,
-      );
-      Future.delayed(Duration.zero, () {
+      for (Map<String, dynamic> item in files) {
+        TextEditingController caption = item["text"];
+        File file = item["file"];    
+        String? mimeType = lookupMimeType(file.path); 
+        String fileType = mimeType!.split("/")[0];
+        switch (fileType) {
+          case "video":
+            VideoEditorController vec = item["video"];
+            double start = item["video"].minTrim;
+            double end =  item["video"].maxTrim;
+            String s = start.toStringAsFixed(2); 
+            String e = end.toStringAsFixed(2);  
+            vec.updateTrim(double.parse(s), double.parse(e));
+            await vec.exportVideo(onCompleted: (File? f) async {
+              duration = await VideoServices.getDuration(f!);
+              media = await mr.media(context, 
+                file: f
+              );
+              notifyListeners();
+              await sr.createStory(context, 
+                caption: caption.text,
+                duration: duration!,
+                fileType: fileType,
+                media: media!
+              );
+              setStateCreateStoryStatus(CreateStoryStatus.loaded);
+            });
+          break;
+          case "image":
+            duration = "";
+            notifyListeners();
+            media = await mr.media(context, 
+              file: File(file.path)
+            );
+            await sr.createStory(context, 
+              caption: caption.text,
+              duration: duration!,
+              fileType: fileType,
+              media: media!
+            );
+            setStateCreateStoryStatus(CreateStoryStatus.loaded);
+          break;
+          default:
+        }
+      }
+      ns.goBack(context);
+      Future.delayed(const Duration(seconds: 1), () {
         getStory(context);
       });
-      setStateCreateStoryStatus(CreateStoryStatus.loaded);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
       setStateCreateStoryStatus(CreateStoryStatus.error);

@@ -25,7 +25,6 @@ import 'package:story_view_app/views/basewidgets/painter/wa_status.dart';
 
 import 'package:story_view_app/container.dart' as core;
 
-import 'package:story_view_app/views/screens/story/create.dart';
 import 'package:story_view_app/views/screens/auth/sign_in.dart';
 
 List<CameraDescription>? cameras;
@@ -139,21 +138,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          elevation: 3.0,
-          mini: true,
-          backgroundColor: const Color(0xffEEEEEE),
-          foregroundColor: Colors.black,
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateStoryScreen(
-              type: "text",
-            )));
-          }, 
-          child: const Icon(
-            Icons.edit,
-            size: 18.0,
-          ),
-        ),
+        // floatingActionButton: FloatingActionButton(
+        //   elevation: 3.0,
+        //   mini: true,
+        //   backgroundColor: const Color(0xffEEEEEE),
+        //   foregroundColor: Colors.black,
+        //   onPressed: () {
+        //     Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateStoryScreen(
+        //       type: "text",
+        //     )));
+        //   }, 
+        //   child: const Icon(
+        //     Icons.edit,
+        //     size: 18.0,
+        //   ),
+        // ),
         body: Consumer<StoryProvider>(
           builder: (BuildContext context, StoryProvider storyProvider, Widget? child) {
             if(storyProvider.getStoryStatus == GetStoryStatus.loading) {
@@ -298,6 +297,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               child: const CircleAvatar(
                                                 radius: 20.0,
                                                 backgroundColor: ColorResources.grey,
+                                                child: Icon(Icons.person,
+                                                  color: ColorResources.white,
+                                                ),
                                               ),
                                             ),
                                           ); 
@@ -387,6 +389,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           return const CircleAvatar(
                             radius: 20.0,
                             backgroundColor: ColorResources.grey,
+                            child: Icon(Icons.person,
+                              color: ColorResources.white,
+                            ),
                           );
                         },
                       ),

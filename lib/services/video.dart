@@ -10,7 +10,7 @@ class VideoServices {
       await VideoCompress.setLogLevel(0);
       return await VideoCompress.compressVideo(
         file.path,
-        quality: VideoQuality.HighestQuality,
+        quality: VideoQuality.LowQuality,
         includeAudio: true, 
       );
     } catch(e) {

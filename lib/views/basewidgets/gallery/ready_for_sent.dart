@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:story_view_app/services/video.dart';
-import 'package:story_view_app/utils/color_resources.dart';
-import 'package:story_view_app/utils/custom_themes.dart';
-import 'package:story_view_app/utils/dimensions.dart';
-
 import 'package:video_editor/video_editor.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:carousel_slider/carousel_slider.dart';
+
+import 'package:story_view_app/utils/color_resources.dart';
+import 'package:story_view_app/utils/custom_themes.dart';
+import 'package:story_view_app/utils/dimensions.dart';
 
 import 'package:helpers/helpers.dart' show OpacityTransition;
 import 'package:provider/provider.dart';
@@ -42,9 +42,6 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
 
   @override 
   void dispose() {
-    for (Map<String, dynamic> item in widget.files) {
-      item["video"].dispose();
-    }
     super.dispose();
   }
 
@@ -149,7 +146,7 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                 child: TrimSlider(
                   child: TrimTimeline(
                     controller: files.single["video"],
-                    margin: const EdgeInsets.only(top: 10.0)
+                    margin: const EdgeInsets.only(top: 10.0),
                   ),
                   controller: files.single["video"],
                   height: 60.0,
@@ -269,33 +266,15 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                       ),
                       child: IconButton(
                         color: Colors.white,
-                        onPressed: () async {
-                          // VideoEditorController vec = files.single["video"];
-                          // double start = files.single["video"].minTrim;
-                          // double end =  files.single["video"].maxTrim;
-                          // String s = start.toStringAsFixed(2); 
-                          // String e = end.toStringAsFixed(2);  
-                          // setState(() {
-                          //   vec.updateTrim(double.parse(s), double.parse(e));
-                          // });
-                          // vec.exportVideo(onCompleted: (File? f) async {
-                          //   TextEditingController? caption = files.single["text"];
-                          //   File media = f!;
-                          //   String? duration = await VideoServices.getDuration(media);
-                          //   await context.read<StoryProvider>().createStory(context, 
-                          //     caption: caption!.text, 
-                          //     file: media,
-                          //     duration: duration!
-                          //   );
-                          // });
-                          await context.read<StoryProvider>().createStory(context, 
-                            // caption: caption.text, 
-                            // file: media,
-                            // duration: duration,
+                        onPressed: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                        ? () {} 
+                        : () {
+                          context.read<StoryProvider>().createStory(
+                            context, 
                             files: files
                           );
                         }, 
-                        icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                        icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading
                         ? const SizedBox(
                             width: 12.0,
                             height: 12.0,
@@ -576,48 +555,13 @@ class _ReadyForSentScreenState extends State<ReadyForSentScreen> {
                     ),
                     child: IconButton(
                       color: Colors.white,
-                      onPressed: () async {
-                        // context.read<StoryProvider>().setStateCreateStoryStatus(CreateStoryStatus.loading);
-                     
-                        //   for (Map<String, dynamic> file in files) {
-                        //     TextEditingController caption = file["text"];
-                        //     File media = file["file"];
-                        //     String duration = file["duration"];
-                        //     if(file["type"] == "mp4") {
-                        //       VideoEditorController vec = file["video"];
-                        //       double start = file["video"].minTrim;
-                        //       double end =  file["video"].maxTrim;
-                        //       String s = start.toStringAsFixed(2); 
-                        //       String e = end.toStringAsFixed(2);  
-                        //       setState(() {
-                        //         vec.updateTrim(double.parse(s), double.parse(e));
-                        //       });
-                        //       vec.exportVideo(onCompleted: (File? file) async {
-                        //         File m = file!;
-                        //         String? d = await VideoServices.getDuration(m);
-                        //         await context.read<StoryProvider>().createStory(context, 
-                        //           caption: caption.text, 
-                        //           file: m,
-                        //           duration: d!
-                        //         );
-                        //       });
-                        //     } else {
-                        //       await context.read<StoryProvider>().createStory(context, 
-                        //         caption: caption.text, 
-                        //         file: media,
-                        //         duration: duration
-                        //       );
-                        //     }
-                        //   }
-                       
-                        await context.read<StoryProvider>().createStory(context, 
-                          // caption: caption.text, 
-                          // file: media,
-                          // duration: duration,
+                      onPressed: () {
+                        context.read<StoryProvider>().createStory(
+                          context, 
                           files: files
                         );
                       }, 
-                      icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                      icon: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading  
                       ? const SizedBox(
                           width: 12.0,
                           height: 12.0,
