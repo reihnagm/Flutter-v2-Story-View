@@ -89,48 +89,62 @@ class StoryProvider with ChangeNotifier {
     setStateCreateStoryStatus(CreateStoryStatus.loading);
     try {
       for (Map<String, dynamic> item in files) {
-        TextEditingController caption = item["text"];
-        File file = item["file"];    
-        String? mimeType = lookupMimeType(file.path); 
-        String fileType = mimeType!.split("/")[0];
-        switch (fileType) {
-          case "video":
-            VideoEditorController vec = item["video"];
-            double start = item["video"].minTrim;
-            double end =  item["video"].maxTrim;
-            String s = start.toStringAsFixed(2); 
-            String e = end.toStringAsFixed(2);  
-            vec.updateTrim(double.parse(s), double.parse(e));
-            await vec.exportVideo(onCompleted: (File? f) async {
-              duration = await VideoServices.getDuration(f!);
-              media = await mr.media(context, 
-                file: f
-              );
+        if(item["type"] == "text") {
+          TextEditingController caption = item["text"];
+          await sr.createStory(context, 
+            background: "",
+            caption: caption.text,
+            duration: "",
+            type: "text",
+            media: ""
+          );
+          setStateCreateStoryStatus(CreateStoryStatus.loaded);
+        } else {
+          TextEditingController caption = item["text"];
+          File file = item["file"];    
+          String? mimeType = lookupMimeType(file.path); 
+          String type = mimeType!.split("/")[0];
+          switch (type) {
+            case "video":
+              VideoEditorController vec = item["video"];
+              double start = item["video"].minTrim;
+              double end =  item["video"].maxTrim;
+              String s = start.toStringAsFixed(2); 
+              String e = end.toStringAsFixed(2);  
+              vec.updateTrim(double.parse(s), double.parse(e));
+              await vec.exportVideo(onCompleted: (File? f) async {
+                duration = await VideoServices.getDuration(f!);
+                media = await mr.media(context, 
+                  file: f
+                );
+                notifyListeners();
+                await sr.createStory(context, 
+                  background: "",
+                  caption: caption.text,
+                  duration: duration!,
+                  type: type,
+                  media: media!
+                );
+                setStateCreateStoryStatus(CreateStoryStatus.loaded);
+              });
+            break;
+            case "image":
+              duration = "";
               notifyListeners();
+              media = await mr.media(context, 
+                file: File(file.path)
+              );
               await sr.createStory(context, 
+                background: "",
                 caption: caption.text,
                 duration: duration!,
-                fileType: fileType,
+                type: type,
                 media: media!
               );
               setStateCreateStoryStatus(CreateStoryStatus.loaded);
-            });
-          break;
-          case "image":
-            duration = "";
-            notifyListeners();
-            media = await mr.media(context, 
-              file: File(file.path)
-            );
-            await sr.createStory(context, 
-              caption: caption.text,
-              duration: duration!,
-              fileType: fileType,
-              media: media!
-            );
-            setStateCreateStoryStatus(CreateStoryStatus.loaded);
-          break;
-          default:
+            break;
+            default:
+          }
         }
       }
       ns.goBack(context);

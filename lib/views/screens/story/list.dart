@@ -61,6 +61,16 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
               );
             });
           break;
+          case "text":
+            setState(() {
+              _storyItem.add(
+                StoryItem.text(
+                  title: item.caption!,
+                  backgroundColor: Colors.red,
+                )
+              );
+            });
+          break;
           default:
         }
       }

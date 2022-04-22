@@ -60,7 +60,8 @@ class StoryRepo {
     required String caption,
     required String media,
     required String duration,
-    required String fileType
+    required String type,
+    required String background,
   }) async {
     try {
       Dio dio = Dio();
@@ -70,7 +71,7 @@ class StoryRepo {
         "caption": caption,
         "media": media,
         "duration": duration,
-        "type": fileType,
+        "type": type,
         "user_id": ap.getUid
       }); 
     } on DioError catch(e) {

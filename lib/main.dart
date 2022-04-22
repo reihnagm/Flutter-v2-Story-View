@@ -11,12 +11,15 @@ import 'package:provider/provider.dart';
 import 'package:story_view_app/providers.dart';
 import 'package:story_view_app/providers/auth/auth.dart';
 import 'package:story_view_app/providers/story/story.dart';
+import 'package:story_view_app/services/navigation.dart';
 
 import 'package:story_view_app/utils/color_resources.dart';
 import 'package:story_view_app/utils/constant.dart';
+import 'package:story_view_app/utils/custom_themes.dart';
 import 'package:story_view_app/utils/dimensions.dart';
 
 import 'package:story_view_app/views/basewidgets/drawer/drawer.dart';
+import 'package:story_view_app/views/screens/story/create.dart';
 
 import 'package:story_view_app/views/screens/story/list.dart';
 
@@ -103,6 +106,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late StoryProvider sp;
+  late NavigationService ns;
 
   @override 
   void initState() {
@@ -123,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Builder(
       builder: (BuildContext context) {
       sp = context.read<StoryProvider>();
+      ns = NavigationService();
       return Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: DrawerWidget(key: UniqueKey()),
@@ -132,27 +137,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           backgroundColor: Colors.white,
           elevation: 0.0,
-          title: const Text("Story View",
-            style: TextStyle(
-              color: Colors.black
+          title: Text("Story View",
+            style: openSans.copyWith(
+              color: ColorResources.black,
+              fontSize: Dimensions.fontSizeSmall
             ),
           ),
         ),
-        // floatingActionButton: FloatingActionButton(
-        //   elevation: 3.0,
-        //   mini: true,
-        //   backgroundColor: const Color(0xffEEEEEE),
-        //   foregroundColor: Colors.black,
-        //   onPressed: () {
-        //     Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateStoryScreen(
-        //       type: "text",
-        //     )));
-        //   }, 
-        //   child: const Icon(
-        //     Icons.edit,
-        //     size: 18.0,
-        //   ),
-        // ),
+        floatingActionButton: FloatingActionButton(
+          elevation: 3.0,
+          mini: true,
+          backgroundColor: const Color(0xffEEEEEE),
+          foregroundColor: Colors.black,
+          onPressed: () {
+            ns.pushNav(context, CreateStoryScreen(key: UniqueKey()));
+          }, 
+          child: const Icon(
+            Icons.edit,
+            size: 18.0,
+          ),
+        ),
         body: Consumer<StoryProvider>(
           builder: (BuildContext context, StoryProvider storyProvider, Widget? child) {
             if(storyProvider.getStoryStatus == GetStoryStatus.loading) {
@@ -284,6 +288,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           );
                                         },
+                                        placeholder: (BuildContext context, String url) {
+                                          return CustomPaint(
+                                            foregroundPainter: DashedCirclePainter(
+                                              dashes: storyProvider.storyData[i].user!.itemCount!,
+                                              gapSize: 4,
+                                              color: Colors.green[300]!,
+                                              strokeWidth: 2
+                                            ),
+                                            child: Container(
+                                              margin: const EdgeInsets.all(3.0),
+                                              child: const CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: ColorResources.grey,
+                                                child: Icon(Icons.person,
+                                                  color: ColorResources.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ); 
+                                        },
                                         errorWidget: (BuildContext context, String url, dynamic error) {
                                           return CustomPaint(
                                             foregroundPainter: DashedCirclePainter(
@@ -383,6 +407,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             radius: 20.0,
                             backgroundColor: Colors.transparent,
                             backgroundImage: imageProvider,
+                          );
+                        },
+                        placeholder: (BuildContext context, String val) {
+                          return const CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor: ColorResources.grey,
+                            child: Icon(Icons.person,
+                              color: ColorResources.white,
+                            ),
                           );
                         },
                         errorWidget: (BuildContext context, String url, dynamic error) {

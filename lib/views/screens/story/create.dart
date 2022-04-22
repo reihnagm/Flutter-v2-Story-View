@@ -1,23 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:story_view_app/utils/color_resources.dart';
 
-class CreateStoryScreen extends StatelessWidget {
-  final String type;
+import 'package:provider/provider.dart';
+import 'package:story_view_app/providers/story/story.dart';
+
+import 'dart:math' as math;
+
+import 'package:story_view_app/utils/custom_themes.dart';
+import 'package:story_view_app/utils/dimensions.dart';
+
+class CreateStoryScreen extends StatefulWidget {
   const CreateStoryScreen({ 
     Key? key,
-    required this.type, 
   }) : super(key: key);
+
+  @override
+  State<CreateStoryScreen> createState() => _CreateStoryScreenState();
+}
+
+class _CreateStoryScreenState extends State<CreateStoryScreen> {
+  Color c = Colors.blueAccent;
+
+  late TextEditingController captionC;
+
+  List<Map<String, dynamic>> addFiles = [];
+
+  @override 
+  void initState() {
+    super.initState();
+    captionC = TextEditingController();
+  }
+
+  @override 
+  void dispose() {
+    captionC.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(  
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: c,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         elevation: 0.0,
         mini: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        onPressed: () {},
+        backgroundColor: ColorResources.white,
+        foregroundColor: ColorResources.black,
+        onPressed: () {
+          setState(() {
+            c = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+          });
+        },
         child: const Icon(
           Icons.color_lens,
           size: 18.0,
@@ -27,62 +61,72 @@ class CreateStoryScreen extends StatelessWidget {
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return Stack(
+              clipBehavior: Clip.none,
               children: [
                 CustomScrollView(
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   slivers: [
                     SliverList(
-                      delegate: SliverChildListDelegate(
-                        [
-                          Container(
-                            margin: const EdgeInsets.only(left: 16.0, right: 16.0),
-                            height: MediaQuery.of(context).size.height,
-                            child: Center(
-                              child: TextField(
-                                cursorColor: Colors.white,
-                                maxLines: 8,
-                                autofocus: true,
-                                focusNode: FocusNode(canRequestFocus: true),
-                                decoration: const InputDecoration(
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide.none
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide.none
-                                  ),
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white
-                                ),
-                              )
-                            )
+                      delegate: SliverChildListDelegate([
+                      Container(
+                        margin: const EdgeInsets.only(left: 16.0, right: 16.0),
+                        height: MediaQuery.of(context).size.height,
+                        child: Center(
+                          child: TextField(
+                            controller: captionC,
+                            cursorColor: ColorResources.white,
+                            maxLines: 8,
+                            autofocus: true,
+                            focusNode: FocusNode(canRequestFocus: true),
+                            decoration: const InputDecoration(
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide.none
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide.none
+                              ),
+                            ),
+                            style: openSans.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              fontWeight: FontWeight.bold,
+                              color: ColorResources.white
+                            ),
                           )
-                        ]
+                        )
                       )
-                    ),
-                  ],
+                    ])
+                  )],
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 15.0, right: 15.0),
+                    margin: const EdgeInsets.only(bottom: 16.0, right: 16.0),
                     width: 60.0,
                     height: 60.0,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        primary: ColorResources.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0)
+                        )
+                      ),
+                      onPressed: () {
+                        addFiles.add({
+                          "id": 0,
+                          "file": "",
+                          "thumbnail": "",
+                          "video": "",
+                          "duration": "",
+                          "type": "text",
+                          "text": captionC
+                        });
+                        context.read<StoryProvider>().createStory(context, files: addFiles);
+                      },
                       child: const Center(
                         child: Icon(
                           Icons.send, 
                           color: Colors.black
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        elevation: 0.0,
-                        primary: Colors.white, 
-                        onPrimary: Colors.red,
                       ),
                     ),
                   )
@@ -92,31 +136,6 @@ class CreateStoryScreen extends StatelessWidget {
           },
         )
       )
-      // SingleChildScrollView(
-        // children: [
-        //    Expanded(
-        //      child: Center(
-        //       child: SingleChildScrollView(
-        //         child: Container(
-        //           margin: const EdgeInsets.only(left: 16.0, right: 16.0),
-        //           child: const TextField(
-        //             cursorColor: Colors.white,
-        //             maxLines: 8,
-        //             style: TextStyle(
-        //               fontSize: 30.0,
-        //               color: Colors.white,
-        //               height: 1.6
-        //             ),
-        //             decoration: InputDecoration(
-        //               border: InputBorder.none
-        //             )
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //   )
-        // ],
-      // )
     );
   }
 }
