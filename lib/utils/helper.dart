@@ -1,4 +1,6 @@
 
+import 'package:flutter/material.dart';
+
 class Helper {
   static Duration parseDuration(String s) {
     int hours = 0;
@@ -13,5 +15,9 @@ class Helper {
     }
     micros = (double.parse(parts[parts.length - 1]) * 1000000).round();
     return Duration(hours: hours, minutes: minutes, microseconds: micros);
+  }
+  
+  static Color hexToColor(String hexString, {String alphaChannel = 'FF'}) {
+    return Color(int.parse('0x$alphaChannel$hexString'));
   }
 }

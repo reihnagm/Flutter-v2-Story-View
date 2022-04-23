@@ -66,7 +66,7 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
               _storyItem.add(
                 StoryItem.text(
                   title: item.caption!,
-                  backgroundColor: Colors.red,
+                  backgroundColor: Helper.hexToColor(item.backgroundColor!),
                 )
               );
             });

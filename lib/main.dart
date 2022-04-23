@@ -59,7 +59,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   
   Timer? timer;
-  var value = 0;
+  int value = 0;
 
   @override 
   void initState() {

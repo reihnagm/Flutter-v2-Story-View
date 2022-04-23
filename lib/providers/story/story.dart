@@ -92,7 +92,7 @@ class StoryProvider with ChangeNotifier {
         if(item["type"] == "text") {
           TextEditingController caption = item["text"];
           await sr.createStory(context, 
-            background: "",
+            backgroundColor: item["backgroundColor"],
             caption: caption.text,
             duration: "",
             type: "text",
@@ -119,7 +119,7 @@ class StoryProvider with ChangeNotifier {
                 );
                 notifyListeners();
                 await sr.createStory(context, 
-                  background: "",
+                  backgroundColor: "",
                   caption: caption.text,
                   duration: duration!,
                   type: type,
@@ -135,7 +135,7 @@ class StoryProvider with ChangeNotifier {
                 file: File(file.path)
               );
               await sr.createStory(context, 
-                background: "",
+                backgroundColor: "",
                 caption: caption.text,
                 duration: duration!,
                 type: type,

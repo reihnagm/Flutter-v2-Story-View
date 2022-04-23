@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
-import 'package:story_view_app/main.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:story_view_app/data/repository/media/media.dart';
@@ -61,13 +60,14 @@ class StoryRepo {
     required String media,
     required String duration,
     required String type,
-    required String background,
+    required String backgroundColor,
   }) async {
     try {
       Dio dio = Dio();
       await dio.post("${AppConstants.baseUrl}/story/store", data: {
         "uid": const Uuid().v4(),
         "user_story_uid": const Uuid().v4(),
+        "backgroundColor": backgroundColor,
         "caption": caption,
         "media": media,
         "duration": duration,

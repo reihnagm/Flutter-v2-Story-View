@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:story_view_app/utils/color_resources.dart';
-
 import 'package:provider/provider.dart';
-import 'package:story_view_app/providers/story/story.dart';
 
 import 'dart:math' as math;
 
+import 'package:story_view_app/providers/story/story.dart';
+
+import 'package:story_view_app/utils/color_resources.dart';
 import 'package:story_view_app/utils/custom_themes.dart';
 import 'package:story_view_app/utils/dimensions.dart';
 
@@ -19,7 +19,7 @@ class CreateStoryScreen extends StatefulWidget {
 }
 
 class _CreateStoryScreenState extends State<CreateStoryScreen> {
-  Color c = Colors.blueAccent;
+  Color color = Colors.blueAccent;
 
   late TextEditingController captionC;
 
@@ -40,7 +40,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(  
-      backgroundColor: c,
+      backgroundColor: color,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         elevation: 0.0,
@@ -49,7 +49,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         foregroundColor: ColorResources.black,
         onPressed: () {
           setState(() {
-            c = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+            color = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
           });
         },
         child: const Icon(
@@ -117,6 +117,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                           "thumbnail": "",
                           "video": "",
                           "duration": "",
+                          "backgroundColor": color.value.toRadixString(16),
                           "type": "text",
                           "text": captionC
                         });
