@@ -19,6 +19,7 @@ class MediaRepo {
     String? mimeType = lookupMimeType(file.path); 
     String type = mimeType!.split("/")[0];
     String subtype = mimeType.split("/")[1];
+    debugPrint(subtype.toString()); 
     try {
       Dio dio = Dio();
       FormData formData = FormData.fromMap({

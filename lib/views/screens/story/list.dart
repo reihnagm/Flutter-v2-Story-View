@@ -7,6 +7,7 @@ import 'package:story_view_app/custom/story_view/index.dart';
 import 'package:story_view_app/data/models/story/story.dart';
 import 'package:story_view_app/providers/story/story.dart';
 import 'package:story_view_app/utils/constant.dart';
+import 'package:story_view_app/utils/custom_themes.dart';
 import 'package:story_view_app/utils/helper.dart';
 
 class StoryViewScreen extends StatefulWidget {
@@ -64,9 +65,27 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
           case "text":
             setState(() {
               _storyItem.add(
-                StoryItem.text(
-                  title: item.caption!,
-                  backgroundColor: Helper.hexToColor(item.backgroundColor!),
+                StoryItem(
+                  Container(
+                    key: UniqueKey(),
+                    decoration: BoxDecoration(
+                      color:  Helper.hexToColor(item.backgroundColor!),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 16.0,
+                    ),
+                    child: Center(
+                      child: Text(
+                        item.caption!,
+                        style: openSans.copyWith(
+                          color:  Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  duration: const Duration(seconds: 3)
                 )
               );
             });
@@ -87,6 +106,7 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
   }
 
   Future<bool> willPopScope() {
+    Navigator.of(context).pop();
     return Future.value(true);
   }
 
@@ -104,34 +124,45 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
           onWillPop: willPopScope,
           child: storyItem.isEmpty 
           ? Container()
-          : Scaffold(
-            key: globalKey,
-            backgroundColor: Colors.black,
-            appBar: AppBar(
+          : WillPopScope(
+            onWillPop: willPopScope,
+            child: Scaffold(
+              key: globalKey,
               backgroundColor: Colors.black,
-              leading: CupertinoNavigationBarBackButton(
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).pop();
+              body: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    sc.next();
+                  });
                 },
-              ),
+                onLongPress: () {
+                  setState(() {
+                    sc.pause();
+                  });
+                },
+                onLongPressUp: () {
+                   setState(() {
+                    sc.play();
+                  });
+                },
+                child: StoryView(
+                  controller: sc,
+                  storyItems: storyItem,
+                  onStoryShow: (s) {
+                
+                  },
+                  onComplete: () {
+                    Navigator.of(context).pop();
+                  },
+                  onVerticalSwipeComplete: (p) {
+                    debugPrint("swipe up");
+                  },
+                  progressPosition: ProgressPosition.top,
+                  repeat: false,
+                  inline: true,
+                ),
+              ) 
             ),
-            body:  StoryView(
-              controller: sc,
-              storyItems: storyItem,
-              onStoryShow: (s) {
-            
-              },
-              onComplete: () {
-                Navigator.of(context).pop();
-              },
-              onVerticalSwipeComplete: (p) {
-                  
-              },
-              progressPosition: ProgressPosition.top,
-              repeat: false,
-              inline: true,
-            ) 
           ),
         );
       },

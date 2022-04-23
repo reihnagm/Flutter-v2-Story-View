@@ -93,6 +93,7 @@ class StoryProvider with ChangeNotifier {
           TextEditingController caption = item["text"];
           await sr.createStory(context, 
             backgroundColor: item["backgroundColor"],
+            textColor: item["textColor"],
             caption: caption.text,
             duration: "",
             type: "text",
@@ -117,9 +118,10 @@ class StoryProvider with ChangeNotifier {
                 media = await mr.media(context, 
                   file: f
                 );
-                notifyListeners();
+                Future.delayed(Duration.zero, () => notifyListeners());
                 await sr.createStory(context, 
                   backgroundColor: "",
+                  textColor: "",
                   caption: caption.text,
                   duration: duration!,
                   type: type,
@@ -130,12 +132,13 @@ class StoryProvider with ChangeNotifier {
             break;
             case "image":
               duration = "";
-              notifyListeners();
               media = await mr.media(context, 
                 file: File(file.path)
               );
+              Future.delayed(Duration.zero, () => notifyListeners());
               await sr.createStory(context, 
                 backgroundColor: "",
+                textColor: "",
                 caption: caption.text,
                 duration: duration!,
                 type: type,

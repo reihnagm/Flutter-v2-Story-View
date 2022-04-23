@@ -19,7 +19,8 @@ class CreateStoryScreen extends StatefulWidget {
 }
 
 class _CreateStoryScreenState extends State<CreateStoryScreen> {
-  Color color = Colors.blueAccent;
+  Color backgroundC = Colors.blueAccent;
+  Color textC = Colors.white;
 
   late TextEditingController captionC;
 
@@ -40,22 +41,42 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(  
-      backgroundColor: color,
+      backgroundColor: backgroundC,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton(
-        elevation: 0.0,
-        mini: true,
-        backgroundColor: ColorResources.white,
-        foregroundColor: ColorResources.black,
-        onPressed: () {
-          setState(() {
-            color = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
-          });
-        },
-        child: const Icon(
-          Icons.color_lens,
-          size: 18.0,
-        ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          FloatingActionButton(
+            elevation: 0.0,
+            mini: true,
+            backgroundColor: ColorResources.white,
+            foregroundColor: ColorResources.black,
+            onPressed: () {
+              setState(() {
+                backgroundC = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+              });
+            },
+            child: const Icon(
+              Icons.color_lens,
+              size: 18.0,
+            ),
+          ),
+          FloatingActionButton(
+            elevation: 0.0,
+            mini: true,
+            backgroundColor: ColorResources.white,
+            foregroundColor: ColorResources.black,
+            onPressed: () {
+              setState(() {
+                textC = Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+              });
+            },
+            child: const Icon(
+              Icons.text_fields,
+              size: 18.0,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -89,7 +110,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                             style: openSans.copyWith(
                               fontSize: Dimensions.fontSizeDefault,
                               fontWeight: FontWeight.bold,
-                              color: ColorResources.white
+                              color: textC
                             ),
                           )
                         )
@@ -101,8 +122,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   alignment: Alignment.bottomRight,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 16.0, right: 16.0),
-                    width: 60.0,
-                    height: 60.0,
+                    width: 50.0,
+                    height: 50.0,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         primary: ColorResources.white,
@@ -117,16 +138,28 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                           "thumbnail": "",
                           "video": "",
                           "duration": "",
-                          "backgroundColor": color.value.toRadixString(16),
+                          "backgroundColor": backgroundC.value.toRadixString(16),
+                          "textColor": textC.value.toRadixString(16),
                           "type": "text",
                           "text": captionC
                         });
                         context.read<StoryProvider>().createStory(context, files: addFiles);
                       },
-                      child: const Center(
-                        child: Icon(
+                      child: context.watch<StoryProvider>().createStoryStatus == CreateStoryStatus.loading 
+                      ? const Center(
+                          child: SizedBox(
+                            width: 16.0,
+                            height: 16.0,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(ColorResources.black),
+                            ),
+                          ),
+                        ) 
+                      : const Center(
+                        child:  Icon(
                           Icons.send, 
-                          color: Colors.black
+                          color: Colors.black,
+                          size: 20.0,
                         ),
                       ),
                     ),

@@ -61,6 +61,7 @@ class StoryRepo {
     required String duration,
     required String type,
     required String backgroundColor,
+    required String textColor
   }) async {
     try {
       Dio dio = Dio();
@@ -68,6 +69,7 @@ class StoryRepo {
         "uid": const Uuid().v4(),
         "user_story_uid": const Uuid().v4(),
         "backgroundColor": backgroundColor,
+        "textColor": textColor,
         "caption": caption,
         "media": media,
         "duration": duration,
