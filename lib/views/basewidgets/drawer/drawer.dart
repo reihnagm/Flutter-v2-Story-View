@@ -57,12 +57,18 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                         return const CircleAvatar(
                           maxRadius: 30.0,
                           backgroundColor: ColorResources.grey,
+                          child: Icon(Icons.person,
+                            color: ColorResources.white,
+                          ),
                         );
                       },
                       errorWidget: (BuildContext context, String error, dynamic val) {
                         return const CircleAvatar(
                           maxRadius: 30.0,
                           backgroundColor: ColorResources.grey,
+                          child: Icon(Icons.person,
+                            color: ColorResources.white,
+                          ),
                         );
                       },
                     ),

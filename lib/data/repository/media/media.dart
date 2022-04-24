@@ -8,6 +8,7 @@ import 'package:mime/mime.dart';
 
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
+import 'package:story_view_app/utils/color_resources.dart';
 
 import 'package:story_view_app/utils/constant.dart';
 import 'package:story_view_app/views/basewidgets/snackbar/snackbar.dart';
@@ -19,7 +20,6 @@ class MediaRepo {
     String? mimeType = lookupMimeType(file.path); 
     String type = mimeType!.split("/")[0];
     String subtype = mimeType.split("/")[1];
-    debugPrint(subtype.toString()); 
     try {
       Dio dio = Dio();
       FormData formData = FormData.fromMap({
@@ -33,7 +33,11 @@ class MediaRepo {
       Map<String, dynamic> data = res.data;
       return compute(parseMedia, data);
     } on DioError catch(e) {
-      ShowSnackbar.snackbar(context, "${e.response?.statusCode} : Internal Server Error (${e.response?.data})", "", Colors.redAccent);
+      if(e.type == DioErrorType.other) {
+        ShowSnackbar.snackbar(context, "${e.toString()} : Internal Server Error (${e.response?.data})", "", ColorResources.error);
+      } else {
+        ShowSnackbar.snackbar(context, "${e.response!.statusCode.toString()} : Internal Server Error (${e.response?.data})", "", ColorResources.error);
+      }
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     } 

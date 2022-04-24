@@ -41,14 +41,11 @@ class StoryRepo {
       Map<String, dynamic> data = res.data;
       return compute(parseStoryData, data);
     } on DioError catch(e) {
-      if(e.type == DioErrorType.connectTimeout) {
-        ShowSnackbar.snackbar(context, "Connection timeout, please try again", "", ColorResources.error);
+      if(e.type == DioErrorType.other) {
+        ShowSnackbar.snackbar(context, e.toString(), "", ColorResources.error);
       } else {
         ShowSnackbar.snackbar(context, "${e.response?.data.toString()} : Internal Server Error", "", ColorResources.error);
       }
-    } on SocketException catch(e, stacktrace) {
-      debugPrint(stacktrace.toString());
-      ShowSnackbar.snackbar(context, "$e : Internal Server Error", "", ColorResources.error);
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());
     }
@@ -77,17 +74,13 @@ class StoryRepo {
         "user_id": ap.getUid
       }); 
     } on DioError catch(e) {
-       if(e.type == DioErrorType.connectTimeout) {
-        ShowSnackbar.snackbar(context, "Connection timeout, please try again", "", ColorResources.error);
+       if(e.type == DioErrorType.other) {
+        ShowSnackbar.snackbar(context, e.toString(), "", ColorResources.error);
         Navigator.of(context).pop();
       } else {
         ShowSnackbar.snackbar(context, "${e.response?.data.toString()} : Internal Server Error", "", ColorResources.error);
         Navigator.of(context).pop();
       }
-      Navigator.of(context).pop();
-    } on SocketException catch(e, stacktrace) {
-      debugPrint(stacktrace.toString());
-      ShowSnackbar.snackbar(context, "$e : Internal Server Error", "", ColorResources.error);
       Navigator.of(context).pop();
     } catch(e, stacktrace) {
       debugPrint(stacktrace.toString());

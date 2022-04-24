@@ -69,8 +69,8 @@ class AuthProvider with ChangeNotifier {
       writeData(authData);
       ns.pushNavReplacement(context, HomeScreen(key: UniqueKey()));
       setStateLoginStatus(LoginStatus.loaded);
-    } catch(e) {
-      debugPrint(e.toString());
+    } catch(e, stacktrace) {
+      debugPrint(stacktrace.toString());
       setStateLoginStatus(LoginStatus.error);
     }
   }

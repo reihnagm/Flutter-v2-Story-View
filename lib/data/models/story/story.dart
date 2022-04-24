@@ -56,6 +56,8 @@ class StoryUserItem {
   StoryUserItem({
     this.uid,
     this.backgroundColor,
+    this.textColor,
+    this.user,
     this.caption,
     this.media,
     this.type,
@@ -64,17 +66,43 @@ class StoryUserItem {
 
   String? uid; 
   String? backgroundColor;
+  String? textColor;
   String? caption;
   String? media;
   String? type;
+  StoryUserData? user;
   String? duration;
 
   factory StoryUserItem.fromJson(Map<String, dynamic> json) => StoryUserItem(
-    uid: json["uids"],
+    uid: json["uid"],
     backgroundColor: json["backgroundColor"],
+    textColor: json["textColor"],
+    user: StoryUserData.fromJson(json["user"]),
     caption: json["caption"],
     media: json["media"],
     type: json["type"],
     duration: json["duration"]
+  );
+}
+
+
+class StoryUserData {
+  StoryUserData({
+    this.uid,
+    this.fullname,
+    this.pic,
+    this.created,
+  });
+
+  String? uid;
+  String? fullname;
+  String? pic;
+  String? created;
+
+  factory StoryUserData.fromJson(Map<String, dynamic> json) => StoryUserData(
+    uid: json["uid"],
+    fullname: json["fullname"],
+    created: json["created"],
+    pic: json["pic"]
   );
 }
