@@ -374,6 +374,8 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
                                 item.caption!,
                                 style: openSans.copyWith(
                                   color: Helper.hexToColor(item.textColor!),
+                                  fontSize: Dimensions.fontSizeDefault,
+                                  fontWeight: FontWeight.bold
                                 ),
                                 textAlign: TextAlign.center,
                               ),

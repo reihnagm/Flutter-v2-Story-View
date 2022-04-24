@@ -98,7 +98,7 @@ class _TabCameraState extends State<TabCamera> {
                         padding: EdgeInsets.only(right: 5.0, bottom: 5.0),
                         child: Icon(
                           Icons.videocam,
-                          color: Colors.white,
+                          color: ColorResources.white,
                         ),
                       ),
                     ),
@@ -217,7 +217,7 @@ class _TabCameraState extends State<TabCamera> {
             right: 0.0,
             child: Icon(
               Icons.keyboard_arrow_up,
-              color: Colors.white,
+              color: ColorResources.white,
               size: 25.0,
             ),
           ),
@@ -232,7 +232,7 @@ class _TabCameraState extends State<TabCamera> {
                 itemBuilder: (BuildContext context, int i) {
                   return InkWell(
                     onLongPress: () async {
-                      if(multipleFiles.length < 5) {
+                      if(multipleFiles.length < 2) {
                         if(multipleFiles.isEmpty) {
                           if(multipleFiles.contains(files[i]!.path)) {
                             setState(() {
@@ -276,7 +276,7 @@ class _TabCameraState extends State<TabCamera> {
                       }
                     },
                     onTap: () async {
-                      if(multipleFiles.length < 5) {
+                      if(multipleFiles.length < 2) {
                         if(multipleFiles.isNotEmpty) {
                           if(multipleFiles.contains(files[i]!.path)) {
                             setState(() {
@@ -371,12 +371,12 @@ class _TabCameraState extends State<TabCamera> {
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFF3B833E),
+                                  color: ColorResources.success,
                                   shape: BoxShape.circle
                                 ),
                                 child: const Icon(
                                   Icons.check,
-                                  color: Colors.white,
+                                  color: ColorResources.white,
                                 ),
                               ),
                             )
@@ -400,11 +400,11 @@ class _TabCameraState extends State<TabCamera> {
       mainAxisSize: MainAxisSize.max,
       children: [
         Material(
-          color: Colors.transparent,
+          color: ColorResources.transparent,
           child: IconButton(
             color: cameraC?.value.flashMode == FlashMode.off
-            ? Colors.white
-            : Colors.blue,
+            ? ColorResources.white
+            : ColorResources.loaderBluePrimary,
             icon: const Icon(Icons.flash_auto),
             onPressed: cameraC != null
             ? () {
@@ -463,7 +463,7 @@ class _TabCameraState extends State<TabCamera> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.red,
+                  color: ColorResources.error,
                   width: 5.0,
                 ),
               ),
@@ -474,16 +474,16 @@ class _TabCameraState extends State<TabCamera> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white,
+                color: ColorResources.white,
                 width: 5.0,
               ),
             ),
           ),
         ),
         Material(
-          color: Colors.transparent,
+          color: ColorResources.transparent,
           child: IconButton(
-            color: Colors.white,
+            color: ColorResources.white,
             icon: const Icon(Icons.switch_camera),
             onPressed: onSwitchCamera,
           ),
@@ -625,7 +625,7 @@ class _TabCameraState extends State<TabCamera> {
                     margin: const EdgeInsets.all(16.0),
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0xFF3B833E)
+                      color: ColorResources.success
                     ),
                     child: InkWell(
                       onTap: () { 
@@ -637,7 +637,7 @@ class _TabCameraState extends State<TabCamera> {
                         padding: EdgeInsets.all(8.0),
                         child: Icon(
                           Icons.check,
-                          color: Colors.white,
+                          color: ColorResources.white,
                           size: 30.0,
                         ),
                       ),

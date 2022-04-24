@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cron/cron.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
@@ -35,6 +36,10 @@ List<CameraDescription>? cameras;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await core.init();
+  final cron = Cron();
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+   
+  });
   try {
     cameras = await availableCameras();
   } on CameraException catch(e) {
@@ -80,7 +85,7 @@ class _MyAppState extends State<MyApp> {
           title: 'Story Status',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primaryColor: Colors.white,
+            primaryColor: ColorResources.white,
           ),
           home: Consumer<AuthProvider>(
             builder: (BuildContext context, AuthProvider authProvider, Widget? child) {
@@ -135,20 +140,21 @@ class _HomeScreenState extends State<HomeScreen> {
           iconTheme: const IconThemeData(
             color: ColorResources.black
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: ColorResources.white,
           elevation: 0.0,
+          centerTitle: true,
           title: Text("Story View",
             style: openSans.copyWith(
               color: ColorResources.black,
-              fontSize: Dimensions.fontSizeSmall
+              fontSize: Dimensions.fontSizeExtraSmall
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
           elevation: 3.0,
           mini: true,
-          backgroundColor: const Color(0xffEEEEEE),
-          foregroundColor: Colors.black,
+          backgroundColor: ColorResources.white,
+          foregroundColor: ColorResources.black,
           onPressed: () {
             ns.pushNav(context, CreateStoryScreen(key: UniqueKey()));
           }, 
@@ -253,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Container(
                             margin: const EdgeInsets.all(16.0),
                             child: Material(
-                              color: Colors.transparent,
+                              color: ColorResources.transparent,
                               child: InkWell(
                                 onTap: () {
                                   Navigator.push(context,
@@ -275,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             foregroundPainter: DashedCirclePainter(
                                               dashes: storyProvider.storyData[i].user!.itemCount!,
                                               gapSize: 4,
-                                              color: Colors.green[300]!,
+                                              color: ColorResources.success,
                                               strokeWidth: 2
                                             ),
                                             child: Container(
@@ -293,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             foregroundPainter: DashedCirclePainter(
                                               dashes: storyProvider.storyData[i].user!.itemCount!,
                                               gapSize: 4,
-                                              color: Colors.green[300]!,
+                                              color: ColorResources.success,
                                               strokeWidth: 2
                                             ),
                                             child: Container(
@@ -313,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             foregroundPainter: DashedCirclePainter(
                                               dashes: storyProvider.storyData[i].user!.itemCount!,
                                               gapSize: 4,
-                                              color: Colors.green[300]!,
+                                              color: ColorResources.success,
                                               strokeWidth: 2
                                             ),
                                             child: Container(
@@ -384,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
           bottom: 5.0,
         ),
         child: Material(
-          color: Colors.transparent,
+          color: ColorResources.transparent,
           child: InkWell(
             onTap: () {
               Navigator.push(context,
@@ -405,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageBuilder: (BuildContext context, ImageProvider<Object> imageProvider) {
                           return CircleAvatar(
                             radius: 20.0,
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: ColorResources.transparent,
                             backgroundImage: imageProvider,
                           );
                         },
@@ -436,17 +442,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 30.0,
                           height: 30.0,
                           decoration: BoxDecoration(
-                            color: Colors.green[700],
+                            color: ColorResources.success,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white,
+                              color: ColorResources.white,
                               width: 2.0
                             ),
                           ),
                           child: const Icon(
                             Icons.add,
                             size: 15.0,
-                            color: Colors.white,
+                            color: ColorResources.white,
                           )
                         ),
                       )
