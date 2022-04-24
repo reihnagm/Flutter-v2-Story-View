@@ -36,10 +36,6 @@ List<CameraDescription>? cameras;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await core.init();
-  final cron = Cron();
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-   
-  });
   try {
     cameras = await availableCameras();
   } on CameraException catch(e) {
@@ -66,14 +62,23 @@ class _MyAppState extends State<MyApp> {
   Timer? timer;
   int value = 0;
 
+  Future<void> checkUserStoryExpire() async  {
+    await context.read<StoryProvider>().userStoryExpire(context);
+  }
+
   @override 
   void initState() {
     super.initState();
-    if(mounted) {
-      Future.delayed(Duration.zero, () async {
+    checkUserStoryExpire();
+    Cron cron = Cron();
+    cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+      await context.read<StoryProvider>().userStoryExpire(context);
+    });
+    Future.delayed(Duration.zero, () async {
+      if(mounted) {
         await PhotoManager.requestPermission();
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -486,5 +491,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-}
+  }
 }

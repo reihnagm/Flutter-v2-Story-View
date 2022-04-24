@@ -87,6 +87,25 @@ class StoryRepo {
       Navigator.of(context).pop();
     }
   }
+
+  Future<void> userStoryExpire(BuildContext context) async {
+    try {
+      Dio dio = Dio();
+      await dio.get("${AppConstants.baseUrl}/story/expire"); 
+    } on DioError catch(e) {
+      if(e.type == DioErrorType.other) {
+        ShowSnackbar.snackbar(context, e.toString(), "", ColorResources.error);
+        Navigator.of(context).pop();
+      } else {
+        ShowSnackbar.snackbar(context, "${e.response?.data.toString()} : Internal Server Error", "", ColorResources.error);
+        Navigator.of(context).pop();
+      }
+    } catch(e, stacktrace) {
+      debugPrint(stacktrace.toString());
+    } 
+  }
+
+
 }
 
 

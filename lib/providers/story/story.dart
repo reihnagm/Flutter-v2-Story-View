@@ -160,4 +160,15 @@ class StoryProvider with ChangeNotifier {
     }
   }
 
+  Future<void> userStoryExpire(BuildContext context) async {
+    try {
+      await sr.userStoryExpire(context);
+      Future.delayed(Duration.zero, () {
+        getStory(context);
+      });
+    } catch(e, stacktrace) {
+      debugPrint(stacktrace.toString());
+    }
+  }
+
 }
